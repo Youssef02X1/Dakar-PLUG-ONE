@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Espace — Dakar Activités</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="container navbar-inner">
+    <a href="index.html" class="nav-logo"><span>Dakar</span>Activités</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="index.html#activites">Activités</a></li>
+      <li><a href="index.html#carte">Carte</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div id="navUserArea"></div>
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Accueil</a>
+  <a href="index.html#activites">Activités</a>
+  <a href="espace-utilisateur.html" class="active">Mon espace</a>
+  <button class="btn btn-outline" style="margin-top:12px;width:100%" onclick="deconnexion()">Déconnexion</button>
+</div>
+
+<!-- PAGE PRINCIPALE -->
+<main class="user-page">
+  <div class="container">
+
+    <!-- Écran de chargement -->
+    <div id="authLoading" style="text-align:center;padding:80px 0">
+      <div class="spinner" style="margin:0 auto 16px"></div>
+      <p style="color:var(--muted)">Chargement…</p>
+    </div>
+
+    <!-- Contenu connecté -->
+    <div id="userContent" style="display:none">
+      <div class="user-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="user-sidebar" role="complementary">
+          <div class="user-profile-mini">
+            <div class="user-avatar-big" id="sidebarAvatar">U</div>
+            <h3 id="sidebarNom">—</h3>
+            <span id="sidebarEmail" style="font-size:.78rem;color:var(--muted)">—</span>
+          </div>
+
+          <ul class="sidebar-nav" role="list">
+            <li><a href="#" data-tab="reservations" class="active" onclick="switchTab('reservations',this);return false">
+              📋 Mes réservations
+            </a></li>
+            <li><a href="#" data-tab="favoris" onclick="switchTab('favoris',this);return false">
+              ♥ Mes favoris
+            </a></li>
+            <li><a href="#" data-tab="profil" onclick="switchTab('profil',this);return false">
+              👤 Mon profil
+            </a></li>
+            <li><a href="#" data-tab="securite" onclick="switchTab('securite',this);return false">
+              🔒 Sécurité
+            </a></li>
+          </ul>
+
+          <div class="divider"></div>
+          <button class="btn btn-outline btn-sm" style="width:100%" onclick="deconnexion()">
+            Déconnexion
+          </button>
+        </aside>
+
+        <!-- CONTENU PRINCIPAL -->
+        <div class="user-content">
+
+          <!-- ===== RÉSERVATIONS ===== -->
+          <div id="tabReservations" class="user-tab-panel active">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+              <h2 style="font-family:var(--font-display);font-size:1.5rem">Mes réservations</h2>
+              <div style="display:flex;gap:8px">
+                <select class="filter-select" id="filterStatut" onchange="renderReservations()" aria-label="Filtrer par statut">
+                  <option value="">Tous les statuts</option>
+                  <option value="confirmee">Confirmées</option>
+                  <option value="en_attente">En attente</option>
+                  <option value="annulee">Annulées</option>
+                </select>
+              </div>
+            </div>
+            <div id="reservationsList" class="resa-list"></div>
+          </div>
+
+          <!-- ===== FAVORIS ===== -->
+          <div id="tabFavoris" class="user-tab-panel">
+            <h2 style="font-family:var(--font-display);font-size:1.5rem;margin-bottom:24px">Mes favoris</h2>
+            <div id="favorisList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px"></div>
+          </div>
+
+          <!-- ===== PROFIL ===== -->
+          <div id="tabProfil" class="user-tab-panel">
+            <h2 style="font-family:var(--font-display);font-size:1.5rem;margin-bottom:24px">Mon profil</h2>
+
+            <div style="background:var(--white);border-radius:var(--radius-xl);padding:32px;box-shadow:var(--shadow-sm)">
+              <!-- Avatar -->
+              <div style="display:flex;align-items:center;gap:20px;margin-bottom:32px">
+                <div class="user-avatar-big" id="profileAvatarBig" style="width:80px;height:80px;font-size:1.8rem">U</div>
+                <div>
+                  <h3 id="profileNomBig" style="font-size:1.1rem;margin-bottom:4px">—</h3>
+                  <p id="profileEmailBig" style="color:var(--muted);font-size:.85rem">—</p>
+                  <p style="font-size:.78rem;color:var(--success);margin-top:4px">✓ Compte vérifié</p>
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                <div class="field">
+                  <label for="profPrenom">Prénom</label>
+                  <input type="text" id="profPrenom" maxlength="50" autocomplete="given-name">
+                </div>
+                <div class="field">
+                  <label for="profNom">Nom</label>
+                  <input type="text" id="profNom" maxlength="50" autocomplete="family-name">
+                </div>
+              </div>
+
+              <div class="field" style="margin-bottom:16px">
+                <label for="profEmail">Email</label>
+                <input type="email" id="profEmail" disabled style="background:var(--sand-lt);cursor:not-allowed" autocomplete="email">
+                <span class="field-hint">L'email ne peut pas être modifié</span>
+              </div>
+
+              <div class="field" style="margin-bottom:16px">
+                <label for="profTel">Téléphone</label>
+                <input type="tel" id="profTel" placeholder="7X XXX XX XX" maxlength="15" autocomplete="tel">
+              </div>
+
+              <div class="field" style="margin-bottom:24px">
+                <label for="profVille">Ville</label>
+                <select id="profVille">
+                  <option value="">Sélectionner</option>
+                  <option value="dakar">Dakar</option>
+                  <option value="thies">Thiès</option>
+                  <option value="saint_louis">Saint-Louis</option>
+                  <option value="ziguinchor">Ziguinchor</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+
+              <button class="btn btn-primary" onclick="saveProfile()" id="btnSaveProfil">
+                Enregistrer les modifications
+              </button>
+            </div>
+          </div>
+
+          <!-- ===== SÉCURITÉ ===== -->
+          <div id="tabSecurite" class="user-tab-panel">
+            <h2 style="font-family:var(--font-display);font-size:1.5rem;margin-bottom:24px">Sécurité</h2>
+
+            <div style="background:var(--white);border-radius:var(--radius-xl);padding:32px;box-shadow:var(--shadow-sm);margin-bottom:20px">
+              <h3 style="font-size:1rem;font-weight:700;margin-bottom:20px">Changer le mot de passe</h3>
+
+              <div class="field" style="margin-bottom:14px">
+                <label for="pwdActuel">Mot de passe actuel</label>
+                <input type="password" id="pwdActuel" autocomplete="current-password">
+              </div>
+              <div class="field" style="margin-bottom:14px">
+                <label for="pwdNew">Nouveau mot de passe</label>
+                <input type="password" id="pwdNew" autocomplete="new-password">
+                <span class="field-hint">Minimum 8 caractères</span>
+              </div>
+              <div class="field" style="margin-bottom:24px">
+                <label for="pwdConfirm">Confirmer le mot de passe</label>
+                <input type="password" id="pwdConfirm" autocomplete="new-password">
+              </div>
+
+              <div id="pwdStrength" style="margin-bottom:16px;display:none">
+                <div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">Force du mot de passe</div>
+                <div style="height:4px;background:var(--sand);border-radius:4px;overflow:hidden">
+                  <div id="pwdStrengthBar" style="height:100%;width:0;background:var(--error);border-radius:4px;transition:.3s"></div>
+                </div>
+                <div id="pwdStrengthLabel" style="font-size:.75rem;margin-top:4px"></div>
+              </div>
+
+              <button class="btn btn-primary" onclick="changePassword()">
+                Mettre à jour le mot de passe
+              </button>
+            </div>
+
+            <!-- Sessions actives -->
+            <div style="background:var(--white);border-radius:var(--radius-xl);padding:32px;box-shadow:var(--shadow-sm);margin-bottom:20px">
+              <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px">Session active</h3>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--sand-lt);border-radius:10px">
+                <div>
+                  <div style="font-size:.88rem;font-weight:500">Navigateur actuel</div>
+                  <div style="font-size:.78rem;color:var(--muted)" id="sessionInfo">—</div>
+                </div>
+                <span class="badge badge-ocean">Actif</span>
+              </div>
+            </div>
+
+            <!-- Zone dangereuse -->
+            <div style="background:rgba(224,68,68,.04);border:1.5px solid rgba(224,68,68,.15);border-radius:var(--radius-xl);padding:28px">
+              <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--error)">Zone dangereuse</h3>
+              <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">La suppression de votre compte est irréversible. Toutes vos données seront perdues.</p>
+              <button class="btn btn-sm" style="background:transparent;border:1.5px solid var(--error);color:var(--error)" onclick="deleteAccount()">
+                Supprimer mon compte
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Non connecté -->
+    <div id="notLoggedIn" style="display:none;text-align:center;padding:100px 20px">
+      <span style="font-size:3rem;display:block;margin-bottom:16px">🔐</span>
+      <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:10px">Connexion requise</h2>
+      <p style="color:var(--muted);margin-bottom:24px">Connectez-vous pour accéder à votre espace personnel.</p>
+      <a href="auth.html" class="btn btn-primary btn-lg">Se connecter</a>
+    </div>
+
+  </div>
+</main>
+
+<!-- MODAL QR RÉSERVATION -->
+<div class="modal-overlay" id="modalQR" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalQR')" aria-label="Fermer">✕</button>
+    <h2 id="qrModalTitle" style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:6px">QR Code de réservation</h2>
+    <div id="modalQRContent" style="text-align:center;padding:20px 0">
+      <div id="modalQRCanvas" style="display:inline-block;padding:16px;background:#fff;border-radius:12px;box-shadow:var(--shadow-md)"></div>
+      <p id="modalQRRef" style="font-size:.82rem;color:var(--muted);margin-top:12px"></p>
+      <p id="modalQRDate" style="font-size:.85rem;font-weight:500;margin-top:4px"></p>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="closeModal('modalQR')">Fermer</button>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="border-top:none;padding-top:0">
+      <span>© 2025 Dakar Activités</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+// ============ DEMO DATA ============
+const DEMO_ACTIVITES_MAP = {
+  1: { nom:'Sortie Kayak en mer', categorie:'kayak', zone:'Dakar', prix:15000, image_principale:'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&q=80' },
+  2: { nom:'Jet Ski Plage de Ngor', categorie:'jetski', zone:'Ngor', prix:35000, image_principale:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&q=80' },
+  3: { nom:'Quad Lac Rose', categorie:'quad', zone:'Lac Rose', prix:25000, image_principale:'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=200&q=80', promo:15 },
+  4: { nom:'Plage Privée Popenguine', categorie:'plage', zone:'Petite Côte', prix:8000, image_principale:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&q=80' },
+  9: { nom:'Restaurant Le Lagon', categorie:'restaurant', zone:'Dakar', prix:18000, image_principale:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&q=80' },
+};
+
+let currentUser = null;
+
+// ============ TOAST ============
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  t.setAttribute('role', 'alert');
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ============ TABS ============
+function switchTab(name, el) {
+  document.querySelectorAll('.user-tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(`tab${name.charAt(0).toUpperCase() + name.slice(1)}`).classList.add('active');
+  if (el) el.classList.add('active');
+
+  // Chargements spécifiques
+  if (name === 'reservations') renderReservations();
+  if (name === 'favoris') renderFavoris();
+  if (name === 'profil') fillProfilForm();
+}
+
+// ============ RÉSERVATIONS ============
+function renderReservations() {
+  const list = document.getElementById('reservationsList');
+  const filtreStatut = document.getElementById('filterStatut').value;
+
+  // Charge depuis localStorage (démo)
+  let resas = JSON.parse(localStorage.getItem('da_reservations') || '[]');
+
+  // Ajoute des démo si vide
+  if (resas.length === 0) {
+    resas = [
+      { id:1, activite_id:1, activite_nom:'Sortie Kayak en mer', date:'2025-06-15', heure:'09:00', nb_personnes:2, montant_total:30000, statut:'confirmee', qr_token:'a1b2c3d4e5f6g7h8', created_at:'2025-05-20T10:00:00Z' },
+      { id:2, activite_id:3, activite_nom:'Quad Lac Rose', date:'2025-06-22', heure:'10:00', nb_personnes:4, montant_total:85000, statut:'en_attente', qr_token:'z9y8x7w6v5u4t3s2', created_at:'2025-05-21T14:30:00Z' },
+      { id:3, activite_id:9, activite_nom:'Restaurant Le Lagon', date:'2025-05-10', heure:'20:00', nb_personnes:2, montant_total:36000, statut:'confirmee', qr_token:'r1e2s3a4d5e6m7o8', created_at:'2025-05-08T09:15:00Z' },
+    ];
+  }
+
+  if (filtreStatut) resas = resas.filter(r => r.statut === filtreStatut);
+
+  if (resas.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">📋</span>
+        <h3>Aucune réservation</h3>
+        <p>Vous n'avez pas encore de réservation${filtreStatut ? ' avec ce statut' : ''}.</p>
+        <a href="index.html" class="btn btn-primary" style="margin-top:16px">Explorer les activités</a>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = resas.map(r => {
+    const act = DEMO_ACTIVITES_MAP[r.activite_id] || {};
+    const statusLabel = { confirmee:'Confirmée', en_attente:'En attente', annulee:'Annulée' }[r.statut] || r.statut;
+    const dateFormatted = r.date ? new Date(r.date + 'T00:00:00').toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' }) : '—';
+
+    return `
+      <div class="resa-item" role="listitem">
+        <img src="${act.image_principale || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=140&q=60'}"
+             alt="${r.activite_nom}" class="resa-item-img" loading="lazy">
+        <div class="resa-item-info">
+          <div class="resa-item-name">${r.activite_nom}</div>
+          <div class="resa-item-date">📅 ${dateFormatted} à ${r.heure || '—'}</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:3px">
+            👥 ${r.nb_personnes} pers. · 💰 ${(r.montant_total||0).toLocaleString('fr-FR')} FCFA
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
+          <span class="resa-status ${r.statut}">${statusLabel}</span>
+          <button class="btn btn-outline btn-sm" onclick="voirQR('${r.qr_token}','${r.activite_nom}','${r.date}','${r.heure}')"
+                  aria-label="Voir QR code de la réservation ${r.activite_nom}">
+            QR Code
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============ FAVORIS ============
+function renderFavoris() {
+  const container = document.getElementById('favorisList');
+  const favIds = JSON.parse(localStorage.getItem('da_favoris') || '[]');
+
+  if (favIds.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <span class="empty-icon">♡</span>
+        <h3>Pas encore de favoris</h3>
+        <p>Sauvegardez vos activités préférées pour les retrouver ici.</p>
+        <a href="index.html" class="btn btn-primary" style="margin-top:16px">Découvrir des activités</a>
+      </div>
+    `;
+    return;
+  }
+
+  const ALL = Object.values(DEMO_ACTIVITES_MAP);
+  const favActivites = ALL.filter(a => favIds.includes(a.id) || favIds.some(id => parseInt(id) === parseInt(a.id)));
+
+  if (favActivites.length === 0) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <span class="empty-icon">♡</span><h3>Aucun favori</h3>
+      <a href="index.html" class="btn btn-primary" style="margin-top:16px">Explorer</a>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = favActivites.map(a => `
+    <div class="card" style="cursor:pointer" onclick="window.location='activite.html?id=${a.id}'" role="article" tabindex="0"
+         onkeydown="if(event.key==='Enter')window.location='activite.html?id=${a.id}'"
+         aria-label="${a.nom}">
+      <div style="aspect-ratio:16/9;overflow:hidden">
+        <img src="${a.image_principale}" alt="${a.nom}" style="width:100%;height:100%;object-fit:cover" loading="lazy">
+      </div>
+      <div style="padding:14px 16px">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:4px">📍 ${a.zone}</div>
+        <div style="font-weight:600;margin-bottom:8px">${a.nom}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="color:var(--coral)">${a.prix.toLocaleString('fr-FR')} FCFA</strong>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();retirerFavori(${a.id},this)"
+                  aria-label="Retirer des favoris">✕</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function retirerFavori(id, btn) {
+  const favSet = new Set(JSON.parse(localStorage.getItem('da_favoris') || '[]'));
+  favSet.delete(id); favSet.delete(String(id));
+  localStorage.setItem('da_favoris', JSON.stringify([...favSet]));
+  btn.closest('.card').remove();
+  showToast('Retiré des favoris', 'info');
+}
+
+// ============ PROFIL ============
+function fillProfilForm() {
+  if (!currentUser) return;
+  const meta = currentUser.user_metadata || {};
+  document.getElementById('profPrenom').value = meta.prenom || '';
+  document.getElementById('profNom').value = meta.nom || '';
+  document.getElementById('profEmail').value = currentUser.email || '';
+  document.getElementById('profTel').value = meta.telephone || '';
+  document.getElementById('profVille').value = meta.ville || '';
+
+  const initial = (meta.prenom || currentUser.email || 'U')[0].toUpperCase();
+  document.getElementById('profileAvatarBig').textContent = initial;
+  document.getElementById('profileNomBig').textContent = `${meta.prenom || ''} ${meta.nom || ''}`.trim() || currentUser.email;
+  document.getElementById('profileEmailBig').textContent = currentUser.email;
+}
+
+async function saveProfile() {
+  const prenom = document.getElementById('profPrenom').value.trim().replace(/[<>"']/g,'').slice(0,50);
+  const nom = document.getElementById('profNom').value.trim().replace(/[<>"']/g,'').slice(0,50);
+  const tel = document.getElementById('profTel').value.trim().replace(/[<>"']/g,'').slice(0,15);
+  const ville = document.getElementById('profVille').value;
+
+  if (!prenom || !nom) { showToast('Prénom et nom requis', 'error'); return; }
+
+  const btn = document.getElementById('btnSaveProfil');
+  btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+  try {
+    // En prod : await DakarApp.sb.auth.updateUser({ data: { prenom, nom, telephone: tel, ville } })
+    await new Promise(r => setTimeout(r, 800)); // simulation
+    showToast('Profil mis à jour !', 'success');
+
+    // MAJ affichage
+    const initial = prenom[0].toUpperCase();
+    document.getElementById('sidebarAvatar').textContent = initial;
+    document.getElementById('sidebarNom').textContent = `${prenom} ${nom}`;
+    document.getElementById('profileAvatarBig').textContent = initial;
+    document.getElementById('profileNomBig').textContent = `${prenom} ${nom}`;
+    document.getElementById('navAvatarEl') && (document.getElementById('navAvatarEl').textContent = initial);
+  } catch (e) {
+    showToast('Erreur lors de la mise à jour', 'error');
+  }
+
+  btn.disabled = false; btn.textContent = 'Enregistrer les modifications';
+}
+
+// ============ SÉCURITÉ ============
+document.getElementById('pwdNew')?.addEventListener('input', function() {
+  const pwd = this.value;
+  const strengthEl = document.getElementById('pwdStrength');
+  const bar = document.getElementById('pwdStrengthBar');
+  const label = document.getElementById('pwdStrengthLabel');
+  if (!pwd) { strengthEl.style.display = 'none'; return; }
+  strengthEl.style.display = '';
+  let score = 0;
+  if (pwd.length >= 8) score++;
+  if (pwd.length >= 12) score++;
+  if (/[A-Z]/.test(pwd)) score++;
+  if (/[0-9]/.test(pwd)) score++;
+  if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+  const levels = [
+    { pct: '20%', color: 'var(--error)', text: 'Très faible' },
+    { pct: '40%', color: 'var(--warning)', text: 'Faible' },
+    { pct: '60%', color: 'var(--gold)', text: 'Moyen' },
+    { pct: '80%', color: 'var(--ocean)', text: 'Bon' },
+    { pct: '100%', color: 'var(--success)', text: 'Excellent' },
+  ];
+  const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+  bar.style.width = lvl.pct;
+  bar.style.background = lvl.color;
+  label.textContent = lvl.text;
+  label.style.color = lvl.color;
+});
+
+async function changePassword() {
+  const actuel = document.getElementById('pwdActuel').value;
+  const nouveau = document.getElementById('pwdNew').value;
+  const confirm = document.getElementById('pwdConfirm').value;
+
+  if (!actuel) { showToast('Entrez votre mot de passe actuel', 'error'); return; }
+  if (nouveau.length < 8) { showToast('Mot de passe trop court (min. 8 caractères)', 'error'); return; }
+  if (nouveau !== confirm) { showToast('Les mots de passe ne correspondent pas', 'error'); return; }
+
+  try {
+    // En prod : await DakarApp.sb.auth.updateUser({ password: nouveau })
+    await new Promise(r => setTimeout(r, 600));
+    showToast('Mot de passe mis à jour !', 'success');
+    document.getElementById('pwdActuel').value = '';
+    document.getElementById('pwdNew').value = '';
+    document.getElementById('pwdConfirm').value = '';
+    document.getElementById('pwdStrength').style.display = 'none';
+  } catch (e) {
+    showToast('Erreur : vérifiez votre mot de passe actuel', 'error');
+  }
+}
+
+function deleteAccount() {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.')) return;
+  showToast('Fonctionnalité disponible dans la version complète', 'info');
+}
+
+// ============ QR CODE ============
+function voirQR(token, nom, date, heure) {
+  const modal = document.getElementById('modalQR');
+  const canvas = document.getElementById('modalQRCanvas');
+  canvas.innerHTML = '';
+
+  new QRCode(canvas, {
+    text: JSON.stringify({ ref: token.slice(0,8).toUpperCase(), activite: nom, date, heure }),
+    width: 180, height: 180,
+    colorDark: '#12242B',
+    colorLight: '#FFFFFF',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  document.getElementById('modalQRRef').textContent = `Réf : ${token.slice(0,8).toUpperCase()}`;
+  document.getElementById('modalQRDate').textContent = `${nom} — ${date} à ${heure}`;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeModal(id) {
+  const m = document.getElementById(id);
+  m.classList.remove('open');
+  m.setAttribute('aria-hidden', 'true');
+}
+
+// Fermeture modale au clic extérieur
+document.getElementById('modalQR').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('modalQR');
+});
+
+// ============ AUTH ============
+async function initAuth() {
+  // Mode démo si Supabase pas configuré
+  let user = null;
+
+  try {
+    const { Auth } = window.DakarApp || {};
+    if (Auth) user = await Auth.getUser();
+  } catch (e) {/* démo */}
+
+  // Simulation utilisateur démo
+  if (!user) {
+    user = {
+      email: 'demo@dakaractivites.sn',
+      user_metadata: { prenom: 'Aminata', nom: 'Diallo', telephone: '771234567', ville: 'dakar' }
+    };
+  }
+
+  currentUser = user;
+  document.getElementById('authLoading').style.display = 'none';
+  document.getElementById('userContent').style.display = '';
+
+  const meta = user.user_metadata || {};
+  const prenom = meta.prenom || '';
+  const nom = meta.nom || '';
+  const initial = (prenom || user.email || 'U')[0].toUpperCase();
+
+  document.getElementById('sidebarAvatar').textContent = initial;
+  document.getElementById('sidebarNom').textContent = prenom || user.email;
+  document.getElementById('sidebarEmail').textContent = user.email;
+
+  // Navbar
+  const navArea = document.getElementById('navUserArea');
+  navArea.innerHTML = `
+    <a href="espace-utilisateur.html">
+      <div class="nav-avatar" id="navAvatarEl" aria-label="Mon espace">${initial}</div>
+    </a>
+  `;
+
+  // Session info
+  const si = document.getElementById('sessionInfo');
+  if (si) si.textContent = `Connecté depuis ${new Date().toLocaleDateString('fr-FR')}`;
+
+  // Chargement initial
+  renderReservations();
+
+  // Hash navigation
+  const hash = window.location.hash.replace('#','');
+  if (['reservations','favoris','profil','securite'].includes(hash)) {
+    const link = document.querySelector(`[data-tab="${hash}"]`);
+    switchTab(hash, link);
+  }
+}
+
+async function deconnexion() {
+  try {
+    const { Auth } = window.DakarApp || {};
+    if (Auth) await Auth.signOut();
+  } catch (e) {/* démo */}
+  showToast('Déconnexion réussie', 'success');
+  setTimeout(() => window.location.href = 'index.html', 800);
+}
+
+// Hamburger
+const hamburger = document.getElementById('hamburger');
+const mobileNav = document.getElementById('mobileNav');
+hamburger.addEventListener('click', () => {
+  const open = mobileNav.classList.toggle('open');
+  hamburger.setAttribute('aria-expanded', open);
+});
+
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+document.addEventListener('DOMContentLoaded', initAuth);
+</script>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Réservez vos activités à Dakar — Kayak, Quad, Plage, Restaurant et bien plus. Paiement Wave & Orange Money.">
+  <title>Dakar Activités — Réservez vos expériences au Sénégal</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Leaflet pour la carte -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+</head>
+<body>
+
+<!-- ============ TOAST CONTAINER ============ -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar" id="navbar" role="navigation" aria-label="Navigation principale">
+  <div class="container navbar-inner">
+    <a href="index.html" class="nav-logo" aria-label="Accueil Dakar Activités">
+      <span>Dakar</span>PLUG ONE
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="index.html" class="active">Accueil</a></li>
+      <li><a href="index.html#activites">Activités</a></li>
+      <li><a href="index.html#carte">Carte</a></li>
+      <li><a href="index.html#bons-plans">Bons plans</a></li>
+      <li><a href="index.html#restaurants">Restaurants</a></li>
+      <li><a href="index.html#location">Location</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <div id="navUserArea">
+        <a href="auth.html" class="btn btn-outline btn-sm">Connexion</a>
+        <a href="auth.html?mode=signup" class="btn btn-primary btn-sm">S'inscrire</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobileNav" role="navigation">
+  <a href="index.html">Accueil</a>
+  <a href="index.html#activites">Activités</a>
+  <a href="index.html#carte">Carte</a>
+  <a href="index.html#bons-plans">Bons plans</a>
+  <a href="index.html#restaurants">Restaurants</a>
+  <a href="index.html#location">Location</a>
+  <a href="espace-utilisateur.html">Mon espace</a>
+  <a href="auth.html" class="btn btn-primary" style="margin-top:12px">Connexion</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<header class="hero" role="banner">
+  <div class="hero-bg"></div>
+  <div class="container hero-content">
+    <div class="hero-eyebrow">Dakar & ses environs</div>
+    <h1>
+      Vivez <em>l'expérience</em><br>
+      Sénégalaise
+    </h1>
+    <p class="hero-sub">
+      Kayak, quad, plages privées, restaurants et plus encore. Réservez en quelques clics, payez avec Wave ou Orange Money.
+    </p>
+
+    <!-- Barre de recherche -->
+    <form class="search-bar" id="searchForm" role="search" aria-label="Rechercher une activité">
+      <label for="searchInput" class="sr-only">Rechercher une activité</label>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Rechercher une activité, un lieu…"
+        autocomplete="off"
+        maxlength="120"
+      >
+      <div class="search-divider"></div>
+      <label for="searchZone" class="sr-only">Zone</label>
+      <select id="searchZone" class="search-select" aria-label="Filtrer par zone">
+        <option value="">Toute zone</option>
+        <option value="dakar">Dakar</option>
+        <option value="saly">Saly</option>
+        <option value="mbour">Mbour</option>
+        <option value="lac_rose">Lac Rose</option>
+        <option value="cap_skiring">Cap Skirring</option>
+        <option value="ile_de_goree">Île de Gorée</option>
+        <option value="petite_cote">Petite Côte</option>
+      </select>
+      <div class="search-divider"></div>
+      <label for="searchCategorie" class="sr-only">Catégorie</label>
+      <select id="searchCategorie" class="search-select" aria-label="Filtrer par catégorie">
+        <option value="">Catégorie</option>
+        <option value="kayak">Kayak</option>
+        <option value="jetski">Jet ski</option>
+        <option value="quad">Quad</option>
+        <option value="plage">Plage</option>
+        <option value="cinema">Cinéma</option>
+        <option value="sortie">Sortie</option>
+        <option value="location">Location</option>
+        <option value="plein_air">Plein air</option>
+        <option value="restaurant">Restaurant</option>
+        <option value="bons_plans">Bons plans</option>
+      </select>
+      <button type="submit" class="btn btn-primary">Rechercher</button>
+    </form>
+
+    <div class="hero-stats" role="list" aria-label="Chiffres clés">
+      <div class="hero-stat" role="listitem">
+        <strong id="statActivites">120+</strong>
+        <span>Activités</span>
+      </div>
+      <div class="hero-stat" role="listitem">
+        <strong>4.8</strong>
+        <span>Note moyenne</span>
+      </div>
+      <div class="hero-stat" role="listitem">
+        <strong id="statReservations">2 400+</strong>
+        <span>Réservations</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-waves" aria-hidden="true">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#FBF7EF"/>
+    </svg>
+  </div>
+</header>
+
+<!-- ============ CATÉGORIES ============ -->
+<section class="categories-section" aria-labelledby="cat-title">
+  <div class="container">
+    <div class="section-header">
+      <div class="accent-line"></div>
+      <h2 id="cat-title">Explorer par catégorie</h2>
+    </div>
+    <div class="categories-grid" id="categoriesGrid" role="list">
+      <!-- Injecté par JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ============ ACTIVITÉS ============ -->
+<section class="activities-section" id="activites" aria-labelledby="act-title">
+  <div class="container">
+    <div class="activities-header">
+      <div class="section-header" style="margin-bottom:0">
+        <div class="accent-line"></div>
+        <h2 id="act-title">Activités populaires</h2>
+      </div>
+
+      <div class="filter-bar" role="group" aria-label="Filtres">
+        <label for="filterPrixMax" class="sr-only">Prix maximum</label>
+        <select id="filterPrixMax" class="filter-select" aria-label="Filtrer par prix">
+          <option value="">Tous les prix</option>
+          <option value="10000">Moins de 10 000 FCFA</option>
+          <option value="25000">Moins de 25 000 FCFA</option>
+          <option value="50000">Moins de 50 000 FCFA</option>
+          <option value="100000">Moins de 100 000 FCFA</option>
+        </select>
+        <label for="filterZone" class="sr-only">Zone</label>
+        <select id="filterZone" class="filter-select" aria-label="Filtrer par zone">
+          <option value="">Toutes zones</option>
+          <option value="dakar">Dakar</option>
+          <option value="saly">Saly</option>
+          <option value="mbour">Mbour</option>
+          <option value="lac_rose">Lac Rose</option>
+        </select>
+        <label for="filterTri" class="sr-only">Trier</label>
+        <select id="filterTri" class="filter-select" aria-label="Trier les résultats">
+          <option value="recent">Les plus récents</option>
+          <option value="prix_asc">Prix croissant</option>
+          <option value="prix_desc">Prix décroissant</option>
+          <option value="note">Mieux notés</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="activitesGrid" class="activities-grid" role="list" aria-label="Liste des activités">
+      <!-- Cartes injectées par JS -->
+    </div>
+
+    <div style="text-align:center;margin-top:40px">
+      <button class="btn btn-outline btn-lg" id="loadMoreBtn">Voir plus d'activités</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CARTE INTERACTIVE ============ -->
+<section class="map-section" id="carte" aria-labelledby="map-title">
+  <div class="container">
+    <div class="section-header">
+      <div class="accent-line"></div>
+      <h2 id="map-title">Trouver sur la carte</h2>
+      <p>Explorez les activités géolocalisées autour de Dakar</p>
+    </div>
+    <div class="map-wrapper">
+      <div id="map" role="application" aria-label="Carte interactive des activités"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BONS PLANS ============ -->
+<section class="activities-section" id="bons-plans" aria-labelledby="bp-title">
+  <div class="container">
+    <div class="section-header">
+      <div class="accent-line"></div>
+      <h2 id="bp-title">Bons plans du moment</h2>
+      <p>Offres et réductions exclusives cette semaine</p>
+    </div>
+    <div id="bonsPlansGrid" class="activities-grid" role="list"></div>
+  </div>
+</section>
+
+<!-- ============ RESTAURANTS ============ -->
+<section class="activities-section" id="restaurants" aria-labelledby="resto-title">
+  <div class="container">
+    <div class="section-header">
+      <div class="accent-line"></div>
+      <h2 id="resto-title">Restaurants & Gastronomie</h2>
+      <p>Les meilleures tables de Dakar et ses environs</p>
+    </div>
+    <div id="restosGrid" class="activities-grid" role="list"></div>
+  </div>
+</section>
+
+<!-- ============ LOCATION ============ -->
+<section class="activities-section" id="location" aria-labelledby="loc-title">
+  <div class="container">
+    <div class="section-header">
+      <div class="accent-line"></div>
+      <h2 id="loc-title">Location de véhicules & appartements</h2>
+      <p>Mobilité et hébergement au meilleur prix</p>
+    </div>
+    <div id="locationGrid" class="activities-grid" role="list"></div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo"><span>Dakar</span>Activités</div>
+        <p>La plateforme de référence pour réserver vos expériences au Sénégal. Paiement sécurisé Wave & Orange Money.</p>
+      </div>
+      <div>
+        <h4>Activités</h4>
+        <ul>
+          <li><a href="index.html?cat=kayak">Kayak & Nautique</a></li>
+          <li><a href="index.html?cat=quad">Quad & Aventure</a></li>
+          <li><a href="index.html?cat=plage">Plages privées</a></li>
+          <li><a href="index.html?cat=plein_air">Plein air</a></li>
+          <li><a href="index.html?cat=restaurant">Restaurants</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Mon compte</h4>
+        <ul>
+          <li><a href="espace-utilisateur.html">Mon espace</a></li>
+          <li><a href="espace-utilisateur.html#reservations">Mes réservations</a></li>
+          <li><a href="espace-utilisateur.html#favoris">Mes favoris</a></li>
+          <li><a href="espace-utilisateur.html#profil">Mon profil</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Aide</h4>
+        <ul>
+          <li><a href="#">Comment ça marche</a></li>
+          <li><a href="#">Paiement Wave</a></li>
+          <li><a href="#">Orange Money</a></li>
+          <li><a href="#">Conditions d'utilisation</a></li>
+          <li><a href="#">Politique de confidentialité</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Dakar Activités. Tous droits réservés.</span>
+      <span>Conçu avec ❤️ à Dakar, Sénégal</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="app.js"></script>
+<script>
+// ============ DONNÉES DEMO ============
+// Ces données seraient normalement chargées depuis Supabase
+const DEMO_ACTIVITES = [
+  { id:1, nom:'Sortie Kayak en mer', categorie:'kayak', zone:'Dakar', prix:15000, note:4.8, nb_avis:42, desc:"Explorez les côtes dakaroises en kayak. Équipement fourni, guide inclus.", image_principale:'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&q=80', publiee:true, lat:14.7167, lng:-17.4677 },
+  { id:2, nom:'Jet Ski Plage de Ngor', categorie:'jetski', zone:'Ngor', prix:35000, note:4.9, nb_avis:87, desc:"Sensations fortes garanties sur les eaux turquoise de Ngor.", image_principale:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80', publiee:true, lat:14.7455, lng:-17.5279 },
+  { id:3, nom:'Quad Lac Rose', categorie:'quad', zone:'Lac Rose', prix:25000, note:4.7, nb_avis:156, desc:"Circuit quad autour du lac Rose, paysages époustouflants garantis.", image_principale:'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=600&q=80', publiee:true, lat:14.8447, lng:-17.2361, bons_plans:true, promo:15 },
+  { id:4, nom:'Plage Privée Popenguine', categorie:'plage', zone:'Petite Côte', prix:8000, note:4.6, nb_avis:234, desc:"Journée détente dans un espace privatisé face à l'Atlantique.", image_principale:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80', publiee:true, lat:14.5167, lng:-17.1833 },
+  { id:5, nom:'Cinéma Liberté', categorie:'cinema', zone:'Dakar Centre', prix:5000, note:4.4, nb_avis:89, desc:"Profitez des dernières sorties dans une salle climatisée.", image_principale:'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=80', publiee:true, lat:14.6928, lng:-17.4467 },
+  { id:6, nom:'Sortie Nocturne Almadies', categorie:'sortie', zone:'Almadies', prix:20000, note:4.5, nb_avis:61, desc:"VIP lounge, DJ set et cocktails dans le spot le plus tendance de Dakar.", image_principale:'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80', publiee:true, lat:14.7506, lng:-17.5100 },
+  { id:7, nom:'Location Tesla Model 3', categorie:'location', zone:'Dakar', prix:75000, note:4.9, nb_avis:28, desc:"Location voiture électrique avec chauffeur ou en libre-service.", image_principale:'https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=600&q=80', publiee:true, lat:14.7000, lng:-17.4400, bons_plans:true, promo:10 },
+  { id:8, nom:'Randonnée Casamance', categorie:'plein_air', zone:'Casamance', prix:45000, note:4.8, nb_avis:38, desc:"Trek immersif dans la forêt tropicale avec guide local certifié.", image_principale:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', publiee:true, lat:12.5681, lng:-16.2719 },
+  { id:9, nom:'Restaurant Le Lagon', categorie:'restaurant', zone:'Dakar', prix:18000, note:4.7, nb_avis:312, desc:"Fruits de mer frais, vue sur mer et cuisine sénégalaise raffinée.", image_principale:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80', publiee:true, lat:14.7300, lng:-17.5000 },
+  { id:10, nom:'Appartement Vue Mer Saly', categorie:'location', zone:'Saly', prix:60000, note:4.8, nb_avis:45, desc:"Appartement meublé T3 avec terrasse panoramique sur l'océan.", image_principale:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80', publiee:true, lat:14.4553, lng:-17.0122 },
+  { id:11, nom:'Plage VIP Les Almadies', categorie:'plage', zone:'Almadies', prix:12000, note:4.9, nb_avis:189, desc:"Transats privés, bar à cocktails et animation musicale.", image_principale:'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=600&q=80', publiee:true, lat:14.7500, lng:-17.5200 },
+  { id:12, nom:'Restaurant Terrou-Bi', categorie:'restaurant', zone:'Dakar Nord', prix:22000, note:4.9, nb_avis:421, desc:"L'incontournable de la gastronomie africaine à Dakar.", image_principale:'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80', publiee:true, lat:14.7200, lng:-17.4700 },
+  { id:13, nom:'Kitesurf Yoff', categorie:'plein_air', zone:'Yoff', prix:30000, note:4.6, nb_avis:72, desc:"Cours de kitesurf avec moniteur diplomé, matériel inclus.", image_principale:'https://images.unsplash.com/photo-1506953823976-52e1fdc0149a?w=600&q=80', publiee:true, lat:14.7580, lng:-17.4970 },
+  { id:14, nom:'Bon Plan Karting', categorie:'bons_plans', zone:'Dakar', prix:7500, note:4.5, nb_avis:93, desc:"20 min de karting au prix fort réduit ce week-end uniquement.", image_principale:'https://images.unsplash.com/photo-1613218906952-e6de5960b5e2?w=600&q=80', publiee:true, lat:14.7100, lng:-17.4500, bons_plans:true, promo:25 },
+];
+
+const CATEGORIES = [
+  { key:'kayak',      label:'Kayak',       emoji:'🛶' },
+  { key:'jetski',     label:'Jet Ski',      emoji:'🚤' },
+  { key:'quad',       label:'Quad',         emoji:'🏍️' },
+  { key:'plage',      label:'Plage',        emoji:'🏖️' },
+  { key:'cinema',     label:'Cinéma',       emoji:'🎬' },
+  { key:'sortie',     label:'Sortie',       emoji:'🎉' },
+  { key:'location',   label:'Location',     emoji:'🏠' },
+  { key:'plein_air',  label:'Plein air',    emoji:'🌿' },
+  { key:'restaurant', label:'Restaurant',   emoji:'🍽️' },
+  { key:'bons_plans', label:'Bons plans',   emoji:'🎁' },
+];
+
+// ============ ÉTAT DE L'APP ============
+const State = {
+  filtreCategorie: '',
+  filtrePrixMax: '',
+  filtreZone: '',
+  filtreTri: 'recent',
+  filtreSearch: '',
+  pageSize: 8,
+  pageCurrent: 1,
+  user: null,
+  activites: [...DEMO_ACTIVITES],
+};
+
+// ============ NAVBAR ============
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 20);
+});
+
+const hamburger = document.getElementById('hamburger');
+const mobileNav = document.getElementById('mobileNav');
+hamburger.addEventListener('click', () => {
+  const open = mobileNav.classList.toggle('open');
+  hamburger.setAttribute('aria-expanded', open);
+});
+// Ferme le menu si on clique ailleurs
+document.addEventListener('click', (e) => {
+  if (!hamburger.contains(e.target) && !mobileNav.contains(e.target)) {
+    mobileNav.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', false);
+  }
+});
+
+// ============ TOAST ============
+function showToast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = msg;
+  toast.setAttribute('role', 'alert');
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// ============ CATÉGORIES ============
+function renderCategories() {
+  const grid = document.getElementById('categoriesGrid');
+  grid.innerHTML = CATEGORIES.map(c => `
+    <div class="cat-card ${State.filtreCategorie === c.key ? 'active' : ''}"
+         role="listitem"
+         tabindex="0"
+         data-cat="${c.key}"
+         aria-label="Catégorie ${c.label}"
+         aria-pressed="${State.filtreCategorie === c.key}">
+      <span class="cat-emoji" aria-hidden="true">${c.emoji}</span>
+      <span class="cat-name">${c.label}</span>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.cat-card').forEach(card => {
+    const activate = () => {
+      const cat = card.dataset.cat;
+      State.filtreCategorie = State.filtreCategorie === cat ? '' : cat;
+      State.pageCurrent = 1;
+      renderCategories();
+      renderActivities();
+    };
+    card.addEventListener('click', activate);
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
+  });
+}
+
+// ============ ACTIVITÉS ============
+function filteredActivities() {
+  let list = State.activites.filter(a => a.publiee);
+
+  if (State.filtreCategorie) list = list.filter(a => a.categorie === State.filtreCategorie);
+  if (State.filtrePrixMax)   list = list.filter(a => a.prix <= parseInt(State.filtrePrixMax));
+  if (State.filtreZone)      list = list.filter(a => a.zone.toLowerCase().includes(State.filtreZone.toLowerCase()));
+  if (State.filtreSearch)    list = list.filter(a =>
+    a.nom.toLowerCase().includes(State.filtreSearch.toLowerCase()) ||
+    a.desc.toLowerCase().includes(State.filtreSearch.toLowerCase()) ||
+    a.zone.toLowerCase().includes(State.filtreSearch.toLowerCase())
+  );
+
+  switch (State.filtreTri) {
+    case 'prix_asc':  list.sort((a,b) => a.prix - b.prix); break;
+    case 'prix_desc': list.sort((a,b) => b.prix - a.prix); break;
+    case 'note':      list.sort((a,b) => b.note - a.note); break;
+  }
+
+  return list;
+}
+
+function renderActivityCard(a) {
+  const promo = a.promo ? `<span class="badge badge-coral">-${a.promo}%</span>` : '';
+  const prixAff = a.promo ? Math.round(a.prix * (1 - a.promo/100)) : a.prix;
+  const prixOld = a.promo ? `<s style="font-size:.72rem;color:var(--muted);margin-right:4px">${a.prix.toLocaleString('fr-FR')}</s>` : '';
+  const stars = '★'.repeat(Math.floor(a.note)) + (a.note % 1 >= 0.5 ? '½' : '');
+
+  return `
+    <article class="activity-card" role="listitem" tabindex="0"
+             onclick="window.location='activite.html?id=${a.id}'"
+             onkeydown="if(event.key==='Enter')window.location='activite.html?id=${a.id}'"
+             aria-label="${a.nom} — ${prixAff.toLocaleString('fr-FR')} FCFA">
+      <div class="ac-image">
+        <img src="${a.image_principale}" alt="${a.nom}" loading="lazy">
+        <div class="ac-badge">${promo}</div>
+        <button class="ac-fav" onclick="event.stopPropagation();toggleFavori(${a.id},this)"
+                aria-label="Ajouter ${a.nom} aux favoris">♡</button>
+      </div>
+      <div class="ac-body">
+        <div class="ac-meta">
+          <span class="ac-zone">📍 ${a.zone}</span>
+          <span class="ac-rating" aria-label="Note ${a.note} sur 5">
+            <span class="stars" aria-hidden="true">★</span> ${a.note} (${a.nb_avis})
+          </span>
+        </div>
+        <h3 class="ac-name">${a.nom}</h3>
+        <p class="ac-desc">${a.desc.slice(0,80)}…</p>
+        <div class="ac-footer">
+          <div class="ac-price">
+            ${prixOld}
+            <strong>${prixAff.toLocaleString('fr-FR')} FCFA</strong>
+            <span>/pers.</span>
+          </div>
+          <button class="btn btn-primary btn-sm"
+                  onclick="event.stopPropagation();window.location='reservation.html?id=${a.id}'"
+                  aria-label="Réserver ${a.nom}">
+            Réserver
+          </button>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderActivities() {
+  const grid = document.getElementById('activitesGrid');
+  const list = filteredActivities();
+  const paginated = list.slice(0, State.pageCurrent * State.pageSize);
+
+  if (paginated.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <span class="empty-icon">🔍</span>
+        <h3>Aucune activité trouvée</h3>
+        <p>Essayez d'autres filtres ou une autre zone.</p>
+      </div>
+    `;
+  } else {
+    grid.innerHTML = paginated.map(renderActivityCard).join('');
+  }
+
+  const btn = document.getElementById('loadMoreBtn');
+  btn.style.display = paginated.length < list.length ? '' : 'none';
+}
+
+function renderSectionGrid(containerId, catFilter) {
+  const grid = document.getElementById(containerId);
+  const list = State.activites.filter(a => a.publiee && a.categorie === catFilter).slice(0,3);
+  grid.innerHTML = list.length ? list.map(renderActivityCard).join('') : '';
+}
+
+function renderBonsPlans() {
+  const grid = document.getElementById('bonsPlansGrid');
+  const list = State.activites.filter(a => a.publiee && a.bons_plans);
+  grid.innerHTML = list.map(renderActivityCard).join('');
+}
+
+// ============ FILTRES ============
+document.getElementById('filterPrixMax').addEventListener('change', e => {
+  State.filtrePrixMax = e.target.value;
+  State.pageCurrent = 1;
+  renderActivities();
+});
+document.getElementById('filterZone').addEventListener('change', e => {
+  State.filtreZone = e.target.value;
+  State.pageCurrent = 1;
+  renderActivities();
+});
+document.getElementById('filterTri').addEventListener('change', e => {
+  State.filtreTri = e.target.value;
+  renderActivities();
+});
+document.getElementById('loadMoreBtn').addEventListener('click', () => {
+  State.pageCurrent++;
+  renderActivities();
+});
+
+// RECHERCHE
+document.getElementById('searchForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const q = document.getElementById('searchInput').value.trim();
+  const zone = document.getElementById('searchZone').value;
+  const cat = document.getElementById('searchCategorie').value;
+
+  // Validation simple
+  State.filtreSearch = q.replace(/[<>"']/g, '');
+  State.filtreZone = zone;
+  State.filtreCategorie = cat;
+  State.pageCurrent = 1;
+  renderCategories();
+  renderActivities();
+
+  document.getElementById('activites').scrollIntoView({ behavior: 'smooth' });
+});
+
+// ============ FAVORIS (démo local) ============
+const favSet = new Set(JSON.parse(localStorage.getItem('da_favoris') || '[]'));
+
+function toggleFavori(id, btn) {
+  if (favSet.has(id)) {
+    favSet.delete(id);
+    btn.textContent = '♡';
+    btn.setAttribute('aria-label', btn.getAttribute('aria-label').replace('Retirer', 'Ajouter'));
+    showToast('Retiré des favoris', 'info');
+  } else {
+    favSet.add(id);
+    btn.textContent = '♥';
+    btn.style.color = 'var(--coral)';
+    showToast('Ajouté aux favoris !', 'success');
+  }
+  localStorage.setItem('da_favoris', JSON.stringify([...favSet]));
+}
+
+// ============ CARTE LEAFLET ============
+let map;
+function initMap() {
+  map = L.map('map', {
+    center: [14.7167, -17.4677],
+    zoom: 11,
+    zoomControl: true,
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18,
+  }).addTo(map);
+
+  const icon = L.divIcon({
+    className: '',
+    html: `<div style="
+      width:32px;height:32px;
+      background:var(--coral,#E8604C);
+      border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);
+      border:2px solid white;
+      box-shadow:0 2px 8px rgba(0,0,0,.25);
+    "></div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -34],
+  });
+
+  State.activites.forEach(a => {
+    if (!a.lat || !a.lng) return;
+    const marker = L.marker([a.lat, a.lng], { icon }).addTo(map);
+    const prixAff = a.promo ? Math.round(a.prix * (1 - a.promo/100)) : a.prix;
+    marker.bindPopup(`
+      <div style="font-family:var(--font-body,'DM Sans');min-width:200px">
+        <img src="${a.image_principale}" alt="${a.nom}"
+             style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:8px">
+        <strong style="font-size:.9rem">${a.nom}</strong><br>
+        <span style="font-size:.78rem;color:#7A9099">📍 ${a.zone}</span><br>
+        <strong style="color:#E8604C">${prixAff.toLocaleString('fr-FR')} FCFA</strong><br>
+        <a href="activite.html?id=${a.id}"
+           style="color:#1A6B7C;font-size:.82rem;font-weight:600;text-decoration:underline">
+          Voir + réserver →
+        </a>
+      </div>
+    `);
+  });
+}
+
+// ============ AUTH STATE ============
+async function checkAuth() {
+  try {
+    const { Auth } = window.DakarApp || {};
+    if (!Auth) return; // Supabase pas encore configuré
+    const user = await Auth.getUser();
+    if (user) {
+      State.user = user;
+      const meta = user.user_metadata || {};
+      const initiale = (meta.prenom || user.email || 'U')[0].toUpperCase();
+      const area = document.getElementById('navUserArea');
+      area.innerHTML = `
+        <a href="espace-utilisateur.html">
+          <div class="nav-avatar" title="Mon espace" aria-label="Mon espace utilisateur">${initiale}</div>
+        </a>
+      `;
+    }
+  } catch (e) { /* Supabase non configuré = mode démo */ }
+}
+
+// ============ URL PARAMS ============
+function parseUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  const cat = params.get('cat');
+  if (cat) {
+    State.filtreCategorie = cat;
+    setTimeout(() => document.getElementById('activites').scrollIntoView({ behavior:'smooth' }), 300);
+  }
+}
+
+// ============ INIT ============
+function init() {
+  parseUrlParams();
+  renderCategories();
+  renderActivities();
+  renderBonsPlans();
+  renderSectionGrid('restosGrid', 'restaurant');
+  renderSectionGrid('locationGrid', 'location');
+  initMap();
+  checkAuth();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

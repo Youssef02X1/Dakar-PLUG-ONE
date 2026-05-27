@@ -1,0 +1,712 @@
+html
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Réservation — Dakar Activités</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="container navbar-inner">
+    <a href="index.html" class="nav-logo"><span>Dakar</span>Activités</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="index.html#activites">Activités</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div id="navUserArea">
+        <a href="auth.html" class="btn btn-outline btn-sm">Connexion</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- PAGE RÉSERVATION -->
+<main class="reservation-page">
+  <div class="container">
+    <div style="margin-bottom:32px">
+      <a href="javascript:history.back()" style="color:var(--ocean);font-size:.88rem;font-weight:500">← Retour à l'activité</a>
+    </div>
+
+    <!-- ÉTAPES -->
+    <div class="resa-steps" role="list" aria-label="Étapes de réservation">
+      <div class="step-item active" id="step1" role="listitem">
+        <div class="step-circle">1</div>
+        <span class="step-label">Détails</span>
+      </div>
+      <div class="step-item" id="step2" role="listitem">
+        <div class="step-circle">2</div>
+        <span class="step-label">Coordonnées</span>
+      </div>
+      <div class="step-item" id="step3" role="listitem">
+        <div class="step-circle">3</div>
+        <span class="step-label">Paiement</span>
+      </div>
+      <div class="step-item" id="step4" role="listitem">
+        <div class="step-circle">4</div>
+        <span class="step-label">Confirmation</span>
+      </div>
+    </div>
+
+    <div class="resa-layout">
+      <!-- GAUCHE : FORMULAIRE PAR ÉTAPES -->
+      <div>
+        <!-- STEP 1 : DATE & OPTIONS -->
+        <div id="panelStep1" class="resa-panel">
+          <h2 class="resa-panel-title">Choisir la date et les options</h2>
+
+          <!-- Calendrier -->
+          <div class="cal-wrapper" role="region" aria-label="Calendrier de réservation">
+            <div class="cal-header">
+              <button class="cal-nav" id="calPrev" aria-label="Mois précédent">‹</button>
+              <h3 id="calTitle" aria-live="polite"></h3>
+              <button class="cal-nav" id="calNext" aria-label="Mois suivant">›</button>
+            </div>
+            <div class="cal-grid" id="calGrid" role="grid" aria-label="Calendrier"></div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Heure -->
+          <div class="field" style="margin-bottom:16px">
+            <label for="heureSelect">Horaire</label>
+            <select id="heureSelect" aria-required="true">
+              <option value="">Choisir un horaire</option>
+              <option value="08:00">08:00</option>
+              <option value="09:00">09:00</option>
+              <option value="10:00">10:00</option>
+              <option value="11:00">11:00</option>
+              <option value="14:00">14:00</option>
+              <option value="15:00">15:00</option>
+              <option value="16:00">16:00</option>
+            </select>
+          </div>
+
+          <!-- Nb personnes -->
+          <div class="field" style="margin-bottom:16px">
+            <label for="nbPersonnes">Nombre de personnes</label>
+            <div style="display:flex;align-items:center;gap:12px">
+              <button class="btn btn-outline btn-sm" onclick="changeNb(-1)" aria-label="Moins de personnes" type="button">−</button>
+              <span id="nbDisplay" style="font-size:1.1rem;font-weight:700;min-width:30px;text-align:center">1</span>
+              <button class="btn btn-outline btn-sm" onclick="changeNb(1)" aria-label="Plus de personnes" type="button">+</button>
+            </div>
+          </div>
+
+          <!-- Options -->
+          <div id="optionsContainer" style="margin-bottom:20px">
+            <h3 style="font-size:.95rem;font-weight:700;margin-bottom:12px">Options</h3>
+            <div id="optionsList"></div>
+          </div>
+
+          <button class="btn btn-primary btn-lg" style="width:100%" onclick="goToStep(2)">
+            Continuer →
+          </button>
+        </div>
+
+        <!-- STEP 2 : COORDONNÉES -->
+        <div id="panelStep2" class="resa-panel" style="display:none">
+          <h2 class="resa-panel-title">Vos coordonnées</h2>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div class="field">
+              <label for="prenomInput">Prénom</label>
+              <input type="text" id="prenomInput" placeholder="Ex. Aminata" maxlength="50" autocomplete="given-name" aria-required="true">
+            </div>
+            <div class="field">
+              <label for="nomInput">Nom</label>
+              <input type="text" id="nomInput" placeholder="Ex. Diallo" maxlength="50" autocomplete="family-name" aria-required="true">
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:14px">
+            <label for="emailInput">Email</label>
+            <input type="email" id="emailInput" placeholder="votre@email.com" maxlength="100" autocomplete="email" aria-required="true">
+          </div>
+
+          <div class="field" style="margin-bottom:14px">
+            <label for="telInput">Téléphone (Wave / Orange Money)</label>
+            <input type="tel" id="telInput" placeholder="7X XXX XX XX" maxlength="15" autocomplete="tel" aria-required="true">
+            <span class="field-hint">Ce numéro sera utilisé pour le paiement mobile</span>
+          </div>
+
+          <div class="field" style="margin-bottom:20px">
+            <label for="noteClient">Note pour l'organisateur (optionnel)</label>
+            <textarea id="noteClient" rows="3" placeholder="Demandes spécifiques, allergies, etc." maxlength="300" aria-label="Note pour l'organisateur"></textarea>
+          </div>
+
+          <div style="display:flex;gap:12px">
+            <button class="btn btn-outline" onclick="goToStep(1)" type="button">← Retour</button>
+            <button class="btn btn-primary" style="flex:1" onclick="goToStep(3)" type="button">
+              Continuer →
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3 : PAIEMENT -->
+        <div id="panelStep3" class="resa-panel" style="display:none">
+          <h2 class="resa-panel-title">Paiement sécurisé</h2>
+
+          <p style="font-size:.88rem;color:var(--muted);margin-bottom:20px">
+            Choisissez votre méthode de paiement préférée. Votre réservation sera confirmée après réception du paiement.
+          </p>
+
+          <div class="payment-methods" role="group" aria-label="Méthodes de paiement">
+            <div class="pay-method selected" id="pmWave" onclick="selectPayment('wave')" role="button" tabindex="0" aria-pressed="true">
+              <div class="pm-logo">🌊</div>
+              <div class="pm-name">Wave</div>
+            </div>
+            <div class="pay-method" id="pmOrange" onclick="selectPayment('orange')" role="button" tabindex="0" aria-pressed="false">
+              <div class="pm-logo">🟠</div>
+              <div class="pm-name">Orange Money</div>
+            </div>
+            <div class="pay-method" id="pmEspeces" onclick="selectPayment('especes')" role="button" tabindex="0" aria-pressed="false">
+              <div class="pm-logo">💵</div>
+              <div class="pm-name">Sur place</div>
+            </div>
+          </div>
+
+          <!-- Wave instructions -->
+          <div id="instrWave" style="background:rgba(26,107,124,.06);border-radius:14px;padding:18px;margin-bottom:20px">
+            <h3 style="font-size:.92rem;font-weight:700;margin-bottom:10px;color:var(--ocean)">Instructions Wave</h3>
+            <ol style="font-size:.85rem;color:var(--night-lt);padding-left:18px;line-height:1.8">
+              <li>Ouvrez votre application Wave</li>
+              <li>Appuyez sur <strong>Envoyer de l'argent</strong></li>
+              <li>Numéro : <strong>77 123 45 67</strong></li>
+              <li>Montant : <strong id="waveMontant">—</strong></li>
+              <li>Note : Votre référence de réservation</li>
+            </ol>
+          </div>
+
+          <div id="instrOrange" style="background:rgba(255,165,0,.06);border-radius:14px;padding:18px;margin-bottom:20px;display:none">
+            <h3 style="font-size:.92rem;font-weight:700;margin-bottom:10px;color:var(--gold)">Instructions Orange Money</h3>
+            <ol style="font-size:.85rem;color:var(--night-lt);padding-left:18px;line-height:1.8">
+              <li>Composez <strong>#144#</strong> sur votre téléphone</li>
+              <li>Sélectionnez <strong>Transfert</strong></li>
+              <li>Numéro : <strong>77 123 45 68</strong></li>
+              <li>Montant : <strong id="orangeMontant">—</strong></li>
+            </ol>
+          </div>
+
+          <div id="instrEspeces" style="background:rgba(46,172,109,.06);border-radius:14px;padding:18px;margin-bottom:20px;display:none">
+            <p style="font-size:.88rem;color:var(--success);font-weight:500">
+              Paiement sur place à l'arrivée. Votre réservation sera confirmée sous réserve de disponibilité.
+            </p>
+          </div>
+
+          <!-- Récapitulatif -->
+          <div style="border:1.5px solid rgba(18,36,43,.1);border-radius:14px;padding:16px;margin-bottom:20px">
+            <h3 style="font-size:.9rem;font-weight:700;margin-bottom:12px">Récapitulatif</h3>
+            <div id="payRecap" style="font-size:.85rem;color:var(--night-lt);display:flex;flex-direction:column;gap:6px">
+              <!-- Injecté par JS -->
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:20px">
+            <label>
+              <input type="checkbox" id="cgAccept" aria-required="true">
+              J'accepte les <a href="#" style="color:var(--ocean)">conditions d'utilisation</a> et la
+              <a href="#" style="color:var(--ocean)">politique de remboursement</a>
+            </label>
+          </div>
+
+          <div style="display:flex;gap:12px">
+            <button class="btn btn-outline" onclick="goToStep(2)" type="button">← Retour</button>
+            <button class="btn btn-primary btn-lg" style="flex:1" onclick="confirmerReservation()" id="btnConfirmer" type="button">
+              Confirmer et réserver
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 4 : CONFIRMATION -->
+        <div id="panelStep4" class="resa-panel" style="display:none">
+          <div class="qr-section">
+            <div style="font-size:2.5rem;margin-bottom:12px">🎉</div>
+            <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:8px">Réservation confirmée !</h2>
+            <p style="color:var(--muted);font-size:.9rem;margin-bottom:4px">Votre QR code de réservation</p>
+
+            <div class="qr-code-wrapper">
+              <div id="qrCanvas"></div>
+            </div>
+
+            <div id="refCode" style="font-size:.82rem;color:var(--muted);margin-bottom:16px">
+              Référence : <strong id="refCodeVal">—</strong>
+            </div>
+
+            <p style="font-size:.85rem;color:var(--night-lt);margin-bottom:20px;line-height:1.7">
+              Présentez ce QR code à l'arrivée. Un email de confirmation vous a été envoyé.
+            </p>
+
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-secondary" onclick="redirectWhatsApp()" type="button">
+                Confirmer sur WhatsApp
+              </button>
+              <a href="espace-utilisateur.html" class="btn btn-outline">
+                Voir mes réservations
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DROITE : RÉCAP RÉSERVATION -->
+      <div>
+        <div style="background:var(--white);border-radius:22px;padding:24px;box-shadow:var(--shadow-sm);position:sticky;top:calc(var(--nav-h) + 20px)">
+          <h3 style="font-weight:700;margin-bottom:16px;font-size:1rem">Votre réservation</h3>
+
+          <div id="recapActivite" style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+            <div class="skeleton" style="width:64px;height:64px;border-radius:10px;flex-shrink:0"></div>
+            <div>
+              <div class="skeleton" style="height:14px;width:150px;border-radius:6px;margin-bottom:8px"></div>
+              <div class="skeleton" style="height:12px;width:100px;border-radius:6px"></div>
+            </div>
+          </div>
+
+          <div class="divider" style="margin:12px 0"></div>
+
+          <div id="recapDetails" style="display:flex;flex-direction:column;gap:8px;font-size:.85rem">
+            <div style="display:flex;justify-content:space-between;color:var(--muted)">
+              <span>Date</span>
+              <span id="recapDate" style="font-weight:500;color:var(--night)">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;color:var(--muted)">
+              <span>Heure</span>
+              <span id="recapHeure" style="font-weight:500;color:var(--night)">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;color:var(--muted)">
+              <span>Personnes</span>
+              <span id="recapNb" style="font-weight:500;color:var(--night)">1</span>
+            </div>
+          </div>
+
+          <div class="divider" style="margin:12px 0"></div>
+
+          <div id="recapPrix" style="display:flex;flex-direction:column;gap:6px;font-size:.85rem">
+            <div style="display:flex;justify-content:space-between;color:var(--muted)">
+              <span id="rLineBase">Base</span>
+              <span id="rLineBaseVal">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;color:var(--muted)" id="rLineOpts" style="display:none">
+              <span>Options</span>
+              <span id="rLineOptsVal">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1rem;border-top:1px solid rgba(18,36,43,.08);padding-top:10px;margin-top:2px">
+              <span>Total</span>
+              <span id="rTotal" style="color:var(--coral)">—</span>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;padding:10px 14px;background:rgba(46,172,109,.07);border-radius:10px;font-size:.78rem;color:var(--success)">
+            ✓ Annulation gratuite 24h avant l'activité
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="border-top:none;padding-top:0">
+      <span>© 2025 Dakar Activités</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+// ============ DEMO DATA ============
+const DEMO_ACTIVITES = [
+  { id:1, nom:'Sortie Kayak en mer', categorie:'kayak', zone:'Dakar', prix:15000, note:4.8, image_principale:'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&q=80', capacite:8, options:[{label:'Guide privé',prix:5000},{label:'Photos souvenir',prix:3000}] },
+  { id:2, nom:'Jet Ski Plage de Ngor', categorie:'jetski', zone:'Ngor', prix:35000, note:4.9, image_principale:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&q=80', capacite:4, options:[{label:'30 min supplémentaires',prix:30000}] },
+  { id:3, nom:'Quad Lac Rose', categorie:'quad', zone:'Lac Rose', prix:25000, note:4.7, image_principale:'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=200&q=80', capacite:12, promo:15, options:[{label:'Circuit longue durée',prix:15000}] },
+  { id:9, nom:'Restaurant Le Lagon', categorie:'restaurant', zone:'Dakar', prix:18000, note:4.7, image_principale:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&q=80', capacite:60, options:[] },
+];
+
+// ============ ÉTAT RÉSERVATION ============
+const ResaState = {
+  activite: null,
+  dateSelected: null,
+  heure: '',
+  nbPersonnes: 1,
+  optionsSelected: [],
+  optionsCout: 0,
+  prixBase: 0,
+  total: 0,
+  prenom: '', nom: '', email: '', tel: '', note: '',
+  methodePaiement: 'wave',
+  currentStep: 1,
+  token: null,
+};
+
+// ============ CALENDRIER ============
+const Cal = {
+  currentDate: new Date(),
+  jours: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+  mois: ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+
+  render() {
+    const now = new Date();
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    // Lundi = 0
+    const startDow = (firstDay.getDay() + 6) % 7;
+
+    document.getElementById('calTitle').textContent = `${this.mois[month]} ${year}`;
+
+    const grid = document.getElementById('calGrid');
+    let html = this.jours.map(j => `<div class="cal-day-name" aria-hidden="true">${j}</div>`).join('');
+
+    // Jours vides avant
+    for (let i = 0; i < startDow; i++) {
+      html += `<div class="cal-day empty" aria-hidden="true"></div>`;
+    }
+
+    // Jours du mois
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const thisDate = new Date(year, month, d);
+      const isPast = thisDate < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const isToday = d === now.getDate() && month === now.getMonth() && year === now.getFullYear();
+      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isSelected = ResaState.dateSelected === dateStr;
+
+      let cls = 'cal-day';
+      if (isPast) cls += ' disabled';
+      if (isToday) cls += ' today';
+      if (isSelected) cls += ' selected';
+
+      html += `<div class="${cls}" data-date="${dateStr}"
+                    role="gridcell"
+                    aria-label="${d} ${this.mois[month]} ${year}${isPast?' (passé)':''}"
+                    ${isPast ? 'aria-disabled="true"' : 'tabindex="0"'}
+                    ${!isPast ? `onclick="Cal.selectDate('${dateStr}')" onkeydown="if(event.key==='Enter'||event.key===' ')Cal.selectDate('${dateStr}')"` : ''}
+               >${d}</div>`;
+    }
+
+    grid.innerHTML = html;
+  },
+
+  selectDate(dateStr) {
+    ResaState.dateSelected = dateStr;
+    const [y, m, d] = dateStr.split('-');
+    const dateObj = new Date(y, m-1, d);
+    const formatted = dateObj.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    document.getElementById('recapDate').textContent = formatted;
+    updateRecap();
+    this.render();
+  },
+
+  prev() {
+    this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+    this.render();
+  },
+
+  next() {
+    this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+    this.render();
+  }
+};
+
+document.getElementById('calPrev').addEventListener('click', () => Cal.prev());
+document.getElementById('calNext').addEventListener('click', () => Cal.next());
+
+document.getElementById('heureSelect').addEventListener('change', e => {
+  ResaState.heure = e.target.value;
+  document.getElementById('recapHeure').textContent = e.target.value || '—';
+  updateRecap();
+});
+
+function changeNb(delta) {
+  const max = ResaState.activite?.capacite || 10;
+  ResaState.nbPersonnes = Math.max(1, Math.min(max, ResaState.nbPersonnes + delta));
+  document.getElementById('nbDisplay').textContent = ResaState.nbPersonnes;
+  document.getElementById('recapNb').textContent = ResaState.nbPersonnes + ' personne' + (ResaState.nbPersonnes > 1 ? 's' : '');
+  updateRecap();
+}
+
+// ============ OPTIONS ============
+function renderOptions(activite) {
+  const container = document.getElementById('optionsList');
+  if (!activite.options || activite.options.length === 0) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:.85rem">Aucune option disponible</p>';
+    return;
+  }
+  container.innerHTML = activite.options.map((opt, i) => `
+    <label class="option-item" for="rOpt${i}">
+      <input type="checkbox" id="rOpt${i}" value="${opt.prix}" data-label="${opt.label}"
+             onchange="updateOptions()">
+      <span>${opt.label}</span>
+      <span class="option-price">+${opt.prix.toLocaleString('fr-FR')} FCFA</span>
+    </label>
+  `).join('');
+}
+
+function updateOptions() {
+  const checks = document.querySelectorAll('#optionsList input:checked');
+  ResaState.optionsSelected = [];
+  ResaState.optionsCout = 0;
+  checks.forEach(c => {
+    ResaState.optionsSelected.push(c.dataset.label);
+    ResaState.optionsCout += parseInt(c.value);
+  });
+  updateRecap();
+}
+
+// ============ RÉCAP PRIX ============
+function updateRecap() {
+  const a = ResaState.activite;
+  if (!a) return;
+
+  const prixBase = a.promo ? Math.round(a.prix * (1 - a.promo/100)) : a.prix;
+  const baseTotal = prixBase * ResaState.nbPersonnes;
+  ResaState.prixBase = prixBase;
+  ResaState.total = baseTotal + ResaState.optionsCout;
+
+  document.getElementById('rLineBase').textContent = `${ResaState.nbPersonnes} × ${prixBase.toLocaleString('fr-FR')} FCFA`;
+  document.getElementById('rLineBaseVal').textContent = `${baseTotal.toLocaleString('fr-FR')} FCFA`;
+
+  const lineOpts = document.getElementById('rLineOpts');
+  if (ResaState.optionsCout > 0) {
+    lineOpts.style.display = 'flex';
+    document.getElementById('rLineOptsVal').textContent = `${ResaState.optionsCout.toLocaleString('fr-FR')} FCFA`;
+  } else {
+    lineOpts.style.display = 'none';
+  }
+
+  document.getElementById('rTotal').textContent = `${ResaState.total.toLocaleString('fr-FR')} FCFA`;
+  document.getElementById('waveMontant').textContent = `${ResaState.total.toLocaleString('fr-FR')} FCFA`;
+  document.getElementById('orangeMontant').textContent = `${ResaState.total.toLocaleString('fr-FR')} FCFA`;
+}
+
+// ============ NAVIGATION ÉTAPES ============
+function goToStep(n) {
+  // Validations
+  if (n === 2 && ResaState.currentStep === 1) {
+    if (!ResaState.dateSelected) { showToast('Choisissez une date', 'error'); return; }
+    if (!ResaState.heure) { showToast('Choisissez un horaire', 'error'); return; }
+  }
+
+  if (n === 3 && ResaState.currentStep === 2) {
+    const prenom = document.getElementById('prenomInput').value.trim();
+    const nom = document.getElementById('nomInput').value.trim();
+    const email = document.getElementById('emailInput').value.trim();
+    const tel = document.getElementById('telInput').value.trim();
+
+    if (!prenom || !nom) { showToast('Prénom et nom requis', 'error'); return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Email invalide', 'error'); return; }
+    if (!tel || !/^\d{9,10}$/.test(tel.replace(/[\s+]/g,''))) { showToast('Numéro de téléphone invalide', 'error'); return; }
+
+    // Sanitisation
+    ResaState.prenom = prenom.slice(0,50).replace(/[<>"']/g,'');
+    ResaState.nom = nom.slice(0,50).replace(/[<>"']/g,'');
+    ResaState.email = email.slice(0,100);
+    ResaState.tel = tel.slice(0,15);
+    ResaState.note = document.getElementById('noteClient').value.trim().slice(0,300).replace(/[<>"']/g,'');
+
+    // Remplir le récap de paiement
+    const recap = document.getElementById('payRecap');
+    recap.innerHTML = `
+      <div style="display:flex;justify-content:space-between"><span>Activité</span><strong>${ResaState.activite.nom}</strong></div>
+      <div style="display:flex;justify-content:space-between"><span>Date</span><strong>${ResaState.dateSelected} à ${ResaState.heure}</strong></div>
+      <div style="display:flex;justify-content:space-between"><span>Personnes</span><strong>${ResaState.nbPersonnes}</strong></div>
+      <div style="display:flex;justify-content:space-between;color:var(--coral)"><span>Total</span><strong>${ResaState.total.toLocaleString('fr-FR')} FCFA</strong></div>
+    `;
+  }
+
+  // Masquer et afficher
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`panelStep${i}`).style.display = i === n ? '' : 'none';
+  }
+
+  // Mise à jour des étapes
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById(`step${i}`);
+    el.classList.remove('active', 'done');
+    if (i < n) el.classList.add('done');
+    if (i === n) el.classList.add('active');
+  }
+
+  ResaState.currentStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============ PAIEMENT ============
+function selectPayment(method) {
+  ResaState.methodePaiement = method;
+
+  ['wave','orange','especes'].forEach(m => {
+    document.getElementById(`pm${m.charAt(0).toUpperCase()+m.slice(1)}`).classList.toggle('selected', m === method);
+    document.getElementById(`pm${m.charAt(0).toUpperCase()+m.slice(1)}`).setAttribute('aria-pressed', m === method);
+    document.getElementById(`instr${m.charAt(0).toUpperCase()+m.slice(1)}`).style.display = m === method ? '' : 'none';
+  });
+}
+
+// ============ CONFIRMATION ============
+async function confirmerReservation() {
+  const cgAccept = document.getElementById('cgAccept');
+  if (!cgAccept.checked) {
+    showToast("Veuillez accepter les conditions d'utilisation", 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnConfirmer');
+  btn.disabled = true;
+  btn.textContent = 'Traitement en cours…';
+
+  try {
+    // Génère un token unique sécurisé
+    const tokenArr = new Uint8Array(16);
+    crypto.getRandomValues(tokenArr);
+    ResaState.token = Array.from(tokenArr, b => b.toString(16).padStart(2,'0')).join('');
+
+    // En production : await DakarApp.Reservations.creer(...)
+    // Simulation d'une requête async (démo)
+    await new Promise(r => setTimeout(r, 1200));
+
+    // Sauvegarde locale pour la démo
+    const reservation = {
+      id: Date.now(),
+      activite_id: ResaState.activite.id,
+      activite_nom: ResaState.activite.nom,
+      date: ResaState.dateSelected,
+      heure: ResaState.heure,
+      nb_personnes: ResaState.nbPersonnes,
+      montant_total: ResaState.total,
+      methode_paiement: ResaState.methodePaiement,
+      statut: 'en_attente',
+      qr_token: ResaState.token,
+      prenom: ResaState.prenom,
+      nom: ResaState.nom,
+      email: ResaState.email,
+      tel: ResaState.tel,
+      created_at: new Date().toISOString(),
+    };
+
+    const existingResas = JSON.parse(localStorage.getItem('da_reservations') || '[]');
+    existingResas.push(reservation);
+    localStorage.setItem('da_reservations', JSON.stringify(existingResas));
+
+    // Afficher step confirmation
+    goToStep(4);
+    genererQR(ResaState.token, ResaState.activite.nom);
+    document.getElementById('refCodeVal').textContent = ResaState.token.slice(0,8).toUpperCase();
+
+    showToast('Réservation enregistrée !', 'success');
+
+  } catch (err) {
+    showToast('Une erreur est survenue. Réessayez.', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Confirmer et réserver';
+  }
+}
+
+// ============ QR CODE ============
+function genererQR(token, nom) {
+  const container = document.getElementById('qrCanvas');
+  container.innerHTML = '';
+  const qrData = JSON.stringify({
+    ref: token.slice(0,8).toUpperCase(),
+    activite: nom,
+    date: ResaState.dateSelected,
+    heure: ResaState.heure,
+    nb: ResaState.nbPersonnes,
+    total: ResaState.total
+  });
+
+  new QRCode(container, {
+    text: qrData,
+    width: 180,
+    height: 180,
+    colorDark: '#12242B',
+    colorLight: '#FFFFFF',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+
+function redirectWhatsApp() {
+  const a = ResaState.activite;
+  const numero = '221771234567';
+  const msg = encodeURIComponent(
+    `🎟️ Réservation - ${a.nom}\n` +
+    `📅 ${ResaState.dateSelected} à ${ResaState.heure}\n` +
+    `👥 ${ResaState.nbPersonnes} personne(s)\n` +
+    `💰 ${ResaState.total.toLocaleString('fr-FR')} FCFA\n` +
+    `🔑 Réf: ${ResaState.token ? ResaState.token.slice(0,8).toUpperCase() : 'N/A'}\n` +
+    `👤 ${ResaState.prenom} ${ResaState.nom} — ${ResaState.tel}`
+  );
+  window.open(`https://wa.me/${numero}?text=${msg}`, '_blank', 'noopener,noreferrer');
+}
+
+// ============ TOAST ============
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  t.setAttribute('role', 'alert');
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ============ INIT ============
+function init() {
+  const params = new URLSearchParams(window.location.search);
+  const id = parseInt(params.get('id'), 10);
+
+  const activite = DEMO_ACTIVITES.find(a => a.id === id);
+  if (!activite) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  ResaState.activite = activite;
+  const prixAff = activite.promo ? Math.round(activite.prix * (1 - activite.promo/100)) : activite.prix;
+  ResaState.prixBase = prixAff;
+  ResaState.total = prixAff;
+
+  // Remplir récap
+  const recapEl = document.getElementById('recapActivite');
+  recapEl.innerHTML = `
+    <img src="${activite.image_principale}" alt="${activite.nom}" style="width:64px;height:64px;border-radius:10px;object-fit:cover;flex-shrink:0">
+    <div>
+      <div style="font-weight:600;font-size:.9rem">${activite.nom}</div>
+      <div style="font-size:.78rem;color:var(--muted)">📍 ${activite.zone}</div>
+      <div style="font-size:.85rem;font-weight:700;color:var(--coral)">${prixAff.toLocaleString('fr-FR')} FCFA/pers.</div>
+    </div>
+  `;
+
+  document.getElementById('rLineBase').textContent = `1 × ${prixAff.toLocaleString('fr-FR')} FCFA`;
+  document.getElementById('rLineBaseVal').textContent = `${prixAff.toLocaleString('fr-FR')} FCFA`;
+  document.getElementById('rTotal').textContent = `${prixAff.toLocaleString('fr-FR')} FCFA`;
+  document.getElementById('waveMontant').textContent = `${prixAff.toLocaleString('fr-FR')} FCFA`;
+  document.getElementById('orangeMontant').textContent = `${prixAff.toLocaleString('fr-FR')} FCFA`;
+
+  // Pré-remplir depuis URL
+  const date = params.get('date');
+  const nb = parseInt(params.get('nb'), 10);
+  if (date) { ResaState.dateSelected = date; document.getElementById('recapDate').textContent = date; }
+  if (nb && nb > 0) { ResaState.nbPersonnes = nb; document.getElementById('nbDisplay').textContent = nb; document.getElementById('recapNb').textContent = nb + ' personne(s)'; }
+
+  renderOptions(activite);
+  Cal.render();
+  updateRecap();
+}
+
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html

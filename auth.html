@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — Dakar Activités</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<div class="auth-page">
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      <a href="index.html" class="nav-logo" style="justify-content:center">
+        <span>Dakar</span>Activités
+      </a>
+      <p style="font-size:.85rem;color:var(--muted);margin-top:8px">Bienvenue sur la plateforme n°1 au Sénégal</p>
+    </div>
+
+    <!-- TABS -->
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab active" id="tabConnexion" role="tab" aria-selected="true" aria-controls="panelConnexion"
+              onclick="switchAuthTab('connexion')">
+        Connexion
+      </button>
+      <button class="auth-tab" id="tabInscription" role="tab" aria-selected="false" aria-controls="panelInscription"
+              onclick="switchAuthTab('inscription')">
+        S'inscrire
+      </button>
+    </div>
+
+    <!-- ===== CONNEXION ===== -->
+    <div id="panelConnexion" role="tabpanel">
+      <div class="auth-form" id="formConnexion">
+
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="votre@email.com"
+                 maxlength="100" autocomplete="email" aria-required="true">
+        </div>
+
+        <div class="field">
+          <label for="loginPassword" style="display:flex;justify-content:space-between">
+            Mot de passe
+            <a href="#" onclick="showForgotPassword();return false"
+               style="font-size:.78rem;color:var(--ocean);font-weight:400">Oublié ?</a>
+          </label>
+          <div style="position:relative">
+            <input type="password" id="loginPassword" placeholder="••••••••"
+                   maxlength="100" autocomplete="current-password" aria-required="true">
+            <button type="button" onclick="togglePwd('loginPassword',this)"
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:.82rem"
+                    aria-label="Afficher/masquer le mot de passe">Voir</button>
+          </div>
+        </div>
+
+        <div id="loginError" style="display:none;padding:10px 14px;background:rgba(224,68,68,.08);border-radius:10px;font-size:.82rem;color:var(--error)" role="alert"></div>
+
+        <button class="btn btn-primary btn-lg" style="width:100%" onclick="doLogin()" id="btnLogin" type="button">
+          Se connecter
+        </button>
+
+        <div class="auth-divider">ou continuer avec</div>
+
+        <button class="btn btn-outline" style="width:100%;gap:10px" onclick="loginWithProvider('google')" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continuer avec Google
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== INSCRIPTION ===== -->
+    <div id="panelInscription" role="tabpanel" style="display:none">
+      <div class="auth-form" id="formInscription">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="field">
+            <label for="regPrenom">Prénom</label>
+            <input type="text" id="regPrenom" placeholder="Aminata" maxlength="50" autocomplete="given-name" aria-required="true">
+          </div>
+          <div class="field">
+            <label for="regNom">Nom</label>
+            <input type="text" id="regNom" placeholder="Diallo" maxlength="50" autocomplete="family-name" aria-required="true">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="regEmail">Email</label>
+          <input type="email" id="regEmail" placeholder="votre@email.com" maxlength="100" autocomplete="email" aria-required="true">
+        </div>
+
+        <div class="field">
+          <label for="regTel">Téléphone</label>
+          <input type="tel" id="regTel" placeholder="7X XXX XX XX" maxlength="15" autocomplete="tel">
+        </div>
+
+        <div class="field">
+          <label for="regPassword">Mot de passe</label>
+          <div style="position:relative">
+            <input type="password" id="regPassword" placeholder="Minimum 8 caractères"
+                   maxlength="100" autocomplete="new-password" oninput="evalPwd(this.value)" aria-required="true">
+            <button type="button" onclick="togglePwd('regPassword',this)"
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:.82rem"
+                    aria-label="Afficher/masquer le mot de passe">Voir</button>
+          </div>
+          <div id="regPwdStrength" style="margin-top:6px;display:none">
+            <div style="height:3px;background:var(--sand);border-radius:3px;overflow:hidden">
+              <div id="regPwdBar" style="height:100%;width:0;transition:.3s;border-radius:3px"></div>
+            </div>
+            <span id="regPwdLabel" style="font-size:.72rem"></span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="regPasswordConfirm">Confirmer le mot de passe</label>
+          <input type="password" id="regPasswordConfirm" placeholder="••••••••" maxlength="100" autocomplete="new-password" aria-required="true">
+        </div>
+
+        <div class="field">
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+            <input type="checkbox" id="regCGU" style="margin-top:3px;flex-shrink:0" aria-required="true">
+            <span style="font-size:.82rem;color:var(--night-lt)">
+              J'accepte les <a href="#" style="color:var(--ocean)">conditions d'utilisation</a> et la
+              <a href="#" style="color:var(--ocean)">politique de confidentialité</a>
+            </span>
+          </label>
+        </div>
+
+        <div id="regError" style="display:none;padding:10px 14px;background:rgba(224,68,68,.08);border-radius:10px;font-size:.82rem;color:var(--error)" role="alert"></div>
+
+        <button class="btn btn-primary btn-lg" style="width:100%" onclick="doRegister()" id="btnRegister" type="button">
+          Créer mon compte
+        </button>
+      </div>
+    </div>
+
+    <!-- CONFIRMATION EMAIL (caché par défaut) -->
+    <div id="panelConfirmation" style="display:none;text-align:center;padding:20px 0">
+      <span style="font-size:3rem;display:block;margin-bottom:16px">📬</span>
+      <h3 style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:8px">Vérifiez votre email</h3>
+      <p style="color:var(--muted);font-size:.88rem;line-height:1.7">
+        Un lien de confirmation a été envoyé à <strong id="confirmEmail"></strong>.
+        Cliquez sur le lien pour activer votre compte.
+      </p>
+      <a href="index.html" class="btn btn-outline" style="margin-top:20px">Retour à l'accueil</a>
+    </div>
+
+    <!-- Mot de passe oublié -->
+    <div id="panelForgot" style="display:none">
+      <h3 style="font-family:var(--font-display);font-size:1.2rem;margin-bottom:8px">Réinitialisation</h3>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:18px">
+        Entrez votre email pour recevoir un lien de réinitialisation.
+      </p>
+      <div class="field" style="margin-bottom:16px">
+        <label for="forgotEmail">Email</label>
+        <input type="email" id="forgotEmail" placeholder="votre@email.com" maxlength="100">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" onclick="showConnexion()" type="button">Annuler</button>
+        <button class="btn btn-primary" style="flex:1" onclick="doForgotPassword()" type="button">Envoyer</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+
+function showToast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  t.setAttribute('role', 'alert');
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = '';
+}
+function clearError(id) {
+  const el = document.getElementById(id);
+  el.style.display = 'none';
+}
+
+// ============ TABS ============
+function switchAuthTab(tab) {
+  const isConn = tab === 'connexion';
+  document.getElementById('panelConnexion').style.display = isConn ? '' : 'none';
+  document.getElementById('panelInscription').style.display = isConn ? 'none' : '';
+  document.getElementById('tabConnexion').classList.toggle('active', isConn);
+  document.getElementById('tabInscription').classList.toggle('active', !isConn);
+  document.getElementById('tabConnexion').setAttribute('aria-selected', isConn);
+  document.getElementById('tabInscription').setAttribute('aria-selected', !isConn);
+  document.getElementById('panelForgot').style.display = 'none';
+}
+
+function showForgotPassword() {
+  document.getElementById('panelConnexion').style.display = 'none';
+  document.getElementById('panelForgot').style.display = '';
+}
+function showConnexion() {
+  document.getElementById('panelConnexion').style.display = '';
+  document.getElementById('panelForgot').style.display = 'none';
+}
+
+// ============ TOGGLE PWD ============
+function togglePwd(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  btn.textContent = isHidden ? 'Cacher' : 'Voir';
+}
+
+// ============ FORCE PWD ============
+function evalPwd(pwd) {
+  const strengthEl = document.getElementById('regPwdStrength');
+  const bar = document.getElementById('regPwdBar');
+  const label = document.getElementById('regPwdLabel');
+  if (!pwd) { strengthEl.style.display = 'none'; return; }
+  strengthEl.style.display = '';
+  let score = 0;
+  if (pwd.length >= 8) score++;
+  if (pwd.length >= 12) score++;
+  if (/[A-Z]/.test(pwd)) score++;
+  if (/[0-9]/.test(pwd)) score++;
+  if (/[^A-Za-z0-9]/.test(pwd)) score++;
+  const levels = [
+    { pct:'20%', color:'var(--error)', text:'Très faible' },
+    { pct:'40%', color:'var(--warning)', text:'Faible' },
+    { pct:'60%', color:'var(--gold)', text:'Moyen' },
+    { pct:'80%', color:'var(--ocean)', text:'Bon' },
+    { pct:'100%', color:'var(--success)', text:'Excellent' },
+  ];
+  const lvl = levels[Math.min(score - 1, 4)] || levels[0];
+  bar.style.width = lvl.pct; bar.style.background = lvl.color;
+  label.textContent = lvl.text; label.style.color = lvl.color;
+}
+
+// ============ CONNEXION ============
+async function doLogin() {
+  clearError('loginError');
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showError('loginError', 'Adresse email invalide'); return;
+  }
+  if (!password) {
+    showError('loginError', 'Mot de passe requis'); return;
+  }
+
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true; btn.textContent = 'Connexion…';
+
+  try {
+    const { Auth } = window.DakarApp || {};
+    if (Auth) {
+      await Auth.signIn(email, password);
+    } else {
+      // Démo sans Supabase
+      await new Promise(r => setTimeout(r, 800));
+    }
+
+    showToast('Connexion réussie !', 'success');
+    const redirect = new URLSearchParams(window.location.search).get('redirect') || 'espace-utilisateur.html';
+    setTimeout(() => window.location.href = redirect, 600);
+  } catch (e) {
+    const msg = e.message?.includes('Invalid') ? 'Email ou mot de passe incorrect' : 'Erreur de connexion. Réessayez.';
+    showError('loginError', msg);
+    btn.disabled = false; btn.textContent = 'Se connecter';
+  }
+}
+
+// ============ INSCRIPTION ============
+async function doRegister() {
+  clearError('regError');
+
+  const prenom = document.getElementById('regPrenom').value.trim().replace(/[<>"']/g,'').slice(0,50);
+  const nom = document.getElementById('regNom').value.trim().replace(/[<>"']/g,'').slice(0,50);
+  const email = document.getElementById('regEmail').value.trim();
+  const tel = document.getElementById('regTel').value.trim().replace(/\s/g,'').slice(0,15);
+  const password = document.getElementById('regPassword').value;
+  const confirm = document.getElementById('regPasswordConfirm').value;
+  const cgu = document.getElementById('regCGU').checked;
+
+  if (!prenom || !nom) { showError('regError', 'Prénom et nom requis'); return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('regError', 'Email invalide'); return; }
+  if (tel && !/^\+?[0-9]{9,15}$/.test(tel)) { showError('regError', 'Numéro de téléphone invalide'); return; }
+  if (password.length < 8) { showError('regError', 'Mot de passe trop court (min. 8 caractères)'); return; }
+  if (password !== confirm) { showError('regError', 'Les mots de passe ne correspondent pas'); return; }
+  if (!cgu) { showError('regError', "Veuillez accepter les conditions d'utilisation"); return; }
+
+  const btn = document.getElementById('btnRegister');
+  btn.disabled = true; btn.textContent = 'Création…';
+
+  try {
+    const { Auth } = window.DakarApp || {};
+    if (Auth) {
+      await Auth.signUp(email, password, nom, prenom);
+    } else {
+      await new Promise(r => setTimeout(r, 900));
+    }
+
+    // Afficher confirmation email
+    document.getElementById('panelInscription').style.display = 'none';
+    document.getElementById('tabConnexion').closest('.auth-tabs').style.display = 'none';
+    document.getElementById('panelConfirmation').style.display = '';
+    document.getElementById('confirmEmail').textContent = email;
+  } catch (e) {
+    const msg = e.message?.includes('already') ? 'Un compte existe déjà avec cet email' : 'Erreur lors de la création du compte';
+    showError('regError', msg);
+    btn.disabled = false; btn.textContent = 'Créer mon compte';
+  }
+}
+
+// ============ MOT DE PASSE OUBLIÉ ============
+async function doForgotPassword() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast('Email invalide', 'error'); return;
+  }
+  try {
+    const { sb } = window.DakarApp || {};
+    if (sb) await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/auth.html?mode=reset' });
+    showToast('Email de réinitialisation envoyé !', 'success');
+    showConnexion();
+  } catch (e) {
+    showToast('Erreur. Vérifiez l\'adresse email.', 'error');
+  }
+}
+
+// ============ PROVIDERS SOCIAUX ============
+async function loginWithProvider(provider) {
+  try {
+    const { sb } = window.DakarApp || {};
+    if (sb) {
+      await sb.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin + '/espace-utilisateur.html' } });
+    } else {
+      showToast('Connexion sociale disponible après configuration Supabase', 'info');
+    }
+  } catch (e) {
+    showToast('Erreur lors de la connexion', 'error');
+  }
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('mode') === 'signup') switchAuthTab('inscription');
+
+  // Entrée clavier
+  ['loginEmail','loginPassword'].forEach(id => {
+    document.getElementById(id)?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+  });
+  ['regPrenom','regNom','regEmail','regTel','regPassword','regPasswordConfirm'].forEach(id => {
+    document.getElementById(id)?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doRegister();
+    });
+  });
+  document.getElementById('forgotEmail')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doForgotPassword();
+  });
+
+  // Vérifie si déjà connecté
+  (async () => {
+    try {
+      const { Auth } = window.DakarApp || {};
+      if (Auth) {
+        const user = await Auth.getUser();
+        if (user) window.location.href = 'espace-utilisateur.html';
+      }
+    } catch (e) { /* pas connecté */ }
+  })();
+});
+</script>
+</body>
+</html>

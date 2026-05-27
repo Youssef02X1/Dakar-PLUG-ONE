@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin — Dakar Activités</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<!-- VÉRIFICATION ADMIN -->
+<div id="adminGuard" style="display:none;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--night)">
+  <div style="text-align:center;color:#fff;padding:40px">
+    <div class="spinner" style="margin:0 auto 20px;border-top-color:var(--coral)"></div>
+    <p>Vérification des droits…</p>
+  </div>
+</div>
+
+<!-- ACCÈS REFUSÉ -->
+<div id="accessDenied" style="display:none;min-height:100vh;display:flex;align-items:center;justify-content:center">
+  <div style="text-align:center;padding:40px">
+    <span style="font-size:3rem;display:block;margin-bottom:16px">🔒</span>
+    <h2 style="font-family:var(--font-display)">Accès restreint</h2>
+    <p style="color:var(--muted);margin:12px 0 24px">Cette zone est réservée à l'administrateur.</p>
+    <a href="index.html" class="btn btn-primary">Retour à l'accueil</a>
+  </div>
+</div>
+
+<!-- DASHBOARD PRINCIPAL -->
+<div id="dashboardMain" style="display:none">
+
+  <!-- SIDEBAR ADMIN -->
+  <aside style="position:fixed;top:0;left:0;bottom:0;width:240px;background:var(--night);display:flex;flex-direction:column;z-index:100;overflow-y:auto" role="complementary" aria-label="Navigation admin">
+    <div style="padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.07)">
+      <div class="nav-logo" style="color:#fff"><span style="color:var(--coral)">Dakar</span>Activités</div>
+      <div style="font-size:.72rem;color:rgba(255,255,255,.4);margin-top:4px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Administration</div>
+    </div>
+
+    <nav style="padding:16px 12px;flex:1" role="navigation">
+      <ul style="list-style:none;display:flex;flex-direction:column;gap:2px">
+        <li><a href="#" data-section="vue-ensemble" onclick="showSection('vue-ensemble',this);return false"
+               style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:.85rem;color:rgba(255,255,255,.7);transition:.2s;text-decoration:none"
+               class="dash-link active">
+          Vue d'ensemble
+        </a></li>
+        <li><a href="#" data-section="reservations" onclick="showSection('reservations',this);return false"
+               style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:.85rem;color:rgba(255,255,255,.7);transition:.2s;text-decoration:none"
+               class="dash-link">
+          Réservations
+          <span id="badgeResas" class="badge badge-coral" style="margin-left:auto;font-size:.65rem;padding:2px 7px">0</span>
+        </a></li>
+        <li><a href="#" data-section="annonces" onclick="showSection('annonces',this);return false"
+               style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:.85rem;color:rgba(255,255,255,.7);transition:.2s;text-decoration:none"
+               class="dash-link">
+          Mes annonces
+        </a></li>
+        <li><a href="#" data-section="nouvelle-annonce" onclick="showSection('nouvelle-annonce',this);return false"
+               style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:.85rem;color:rgba(255,255,255,.7);transition:.2s;text-decoration:none"
+               class="dash-link">
+          + Nouvelle annonce
+        </a></li>
+        <li><a href="#" data-section="revenus" onclick="showSection('revenus',this);return false"
+               style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:.85rem;color:rgba(255,255,255,.7);transition:.2s;text-decoration:none"
+               class="dash-link">
+          Revenus
+        </a></li>
+        <li><a href="#" data-section="utilisateurs" onclick="showSection('utilisateurs',this);return false"
+               style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:.85rem;color:rgba(255,255,255,.7);transition:.2s;text-decoration:none"
+               class="dash-link">
+          Utilisateurs
+        </a></li>
+      </ul>
+    </nav>
+
+    <div style="padding:16px 20px;border-top:1px solid rgba(255,255,255,.07)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0">A</div>
+        <div>
+          <div style="font-size:.82rem;font-weight:600;color:#fff">Administrateur</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.4)">admin@dakaractivites.sn</div>
+        </div>
+      </div>
+      <a href="index.html" style="display:block;font-size:.78rem;color:rgba(255,255,255,.4);padding:6px 0;transition:.2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.4)'">
+        ← Voir le site
+      </a>
+    </div>
+  </aside>
+
+  <!-- CONTENU PRINCIPAL -->
+  <main style="margin-left:240px;padding:32px;min-height:100vh;background:var(--sand-lt)">
+
+    <!-- ===== VUE D'ENSEMBLE ===== -->
+    <section id="sectionVueEnsemble" class="dash-section">
+      <div class="dash-header">
+        <div>
+          <h1 style="font-family:var(--font-display)">Vue d'ensemble</h1>
+          <p style="color:var(--muted);font-size:.88rem">Tableau de bord — <span id="dateToday"></span></p>
+        </div>
+        <button class="btn btn-primary" onclick="showSection('nouvelle-annonce',null)">
+          + Nouvelle annonce
+        </button>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card stat-coral">
+          <div class="stat-label">Réservations totales</div>
+          <div class="stat-value" id="statTotalResa">0</div>
+          <div class="stat-sub">En attente : <span id="statEnAttente">0</span></div>
+        </div>
+        <div class="stat-card stat-success">
+          <div class="stat-label">Revenus (mois)</div>
+          <div class="stat-value" id="statRevenusMois">0 FCFA</div>
+          <div class="stat-sub">Confirmées : <span id="statConfirmees">0</span></div>
+        </div>
+        <div class="stat-card stat-ocean">
+          <div class="stat-label">Activités en ligne</div>
+          <div class="stat-value" id="statActives">0</div>
+          <div class="stat-sub">Sur <span id="statTotalAct">0</span> au total</div>
+        </div>
+        <div class="stat-card stat-gold">
+          <div class="stat-label">Utilisateurs inscrits</div>
+          <div class="stat-value" id="statUsers">0</div>
+          <div class="stat-sub">Ce mois</div>
+        </div>
+      </div>
+
+      <!-- TABLES -->
+      <div class="dash-grid">
+        <!-- Dernières réservations -->
+        <div class="dash-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <h2 class="dash-panel-title" style="margin:0">Dernières réservations</h2>
+            <button class="btn btn-outline btn-sm" onclick="showSection('reservations',null)">Voir tout</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="dash-table" aria-label="Dernières réservations">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Activité</th>
+                  <th>Date</th>
+                  <th>Montant</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody id="tableLastResas"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Activités populaires -->
+        <div class="dash-panel">
+          <h2 class="dash-panel-title">Activités populaires</h2>
+          <div id="popActList" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RÉSERVATIONS ===== -->
+    <section id="sectionReservations" class="dash-section" style="display:none">
+      <div class="dash-header">
+        <h1 style="font-family:var(--font-display)">Réservations</h1>
+        <div style="display:flex;gap:8px">
+          <select class="filter-select" id="dashFilterStatut" onchange="renderDashResas()" aria-label="Filtrer par statut">
+            <option value="">Tous les statuts</option>
+            <option value="en_attente">En attente</option>
+            <option value="confirmee">Confirmées</option>
+            <option value="annulee">Annulées</option>
+          </select>
+          <select class="filter-select" id="dashFilterCat" onchange="renderDashResas()" aria-label="Filtrer par catégorie">
+            <option value="">Toutes catégories</option>
+            <option value="kayak">Kayak</option>
+            <option value="jetski">Jet ski</option>
+            <option value="quad">Quad</option>
+            <option value="plage">Plage</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="location">Location</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dash-panel">
+        <div style="overflow-x:auto">
+          <table class="dash-table" aria-label="Toutes les réservations">
+            <thead>
+              <tr>
+                <th>Réf.</th>
+                <th>Client</th>
+                <th>Activité</th>
+                <th>Date activité</th>
+                <th>Pers.</th>
+                <th>Montant</th>
+                <th>Paiement</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tableToutesResas"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ANNONCES ===== -->
+    <section id="sectionAnnonces" class="dash-section" style="display:none">
+      <div class="dash-header">
+        <h1 style="font-family:var(--font-display)">Mes annonces</h1>
+        <button class="btn btn-primary" onclick="showSection('nouvelle-annonce',null)">
+          + Nouvelle annonce
+        </button>
+      </div>
+
+      <div class="dash-panel">
+        <div id="annoncesListAdmin" class="annonce-grid"></div>
+      </div>
+    </section>
+
+    <!-- ===== NOUVELLE ANNONCE ===== -->
+    <section id="sectionNouvelleAnnonce" class="dash-section" style="display:none">
+      <div class="dash-header">
+        <h1 style="font-family:var(--font-display)" id="formAnnonceTitle">Nouvelle annonce</h1>
+      </div>
+
+      <div class="dash-panel" style="max-width:720px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="field" style="grid-column:1/-1">
+            <label for="annNom">Nom de l'activité *</label>
+            <input type="text" id="annNom" placeholder="Ex: Sortie Kayak Plage de Yoff" maxlength="100" aria-required="true">
+          </div>
+
+          <div class="field">
+            <label for="annCategorie">Catégorie *</label>
+            <select id="annCategorie" aria-required="true">
+              <option value="">Sélectionner</option>
+              <option value="kayak">Kayak</option>
+              <option value="jetski">Jet ski</option>
+              <option value="quad">Quad</option>
+              <option value="plage">Plage</option>
+              <option value="cinema">Cinéma</option>
+              <option value="sortie">Sortie</option>
+              <option value="location">Location</option>
+              <option value="plein_air">Plein air</option>
+              <option value="restaurant">Restaurant</option>
+              <option value="bons_plans">Bons plans</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="annZone">Zone *</label>
+            <select id="annZone" aria-required="true">
+              <option value="">Sélectionner</option>
+              <option value="Dakar">Dakar</option>
+              <option value="Ngor">Ngor</option>
+              <option value="Almadies">Almadies</option>
+              <option value="Yoff">Yoff</option>
+              <option value="Lac Rose">Lac Rose</option>
+              <option value="Saly">Saly</option>
+              <option value="Mbour">Mbour</option>
+              <option value="Petite Côte">Petite Côte</option>
+              <option value="Casamance">Casamance</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="annPrix">Prix de base (FCFA) *</label>
+            <input type="number" id="annPrix" placeholder="25000" min="0" max="9999999" aria-required="true">
+          </div>
+
+          <div class="field">
+            <label for="annPromo">Promotion (%)</label>
+            <input type="number" id="annPromo" placeholder="0" min="0" max="90">
+          </div>
+
+          <div class="field">
+            <label for="annDuree">Durée</label>
+            <input type="text" id="annDuree" placeholder="Ex: 2h" maxlength="20">
+          </div>
+
+          <div class="field">
+            <label for="annCapacite">Capacité max (personnes)</label>
+            <input type="number" id="annCapacite" placeholder="10" min="1" max="999">
+          </div>
+
+          <div class="field">
+            <label for="annNiveau">Niveau requis</label>
+            <select id="annNiveau">
+              <option value="Tout public">Tout public</option>
+              <option value="Débutant">Débutant</option>
+              <option value="Intermédiaire">Intermédiaire</option>
+              <option value="Expert">Expert</option>
+            </select>
+          </div>
+
+          <div class="field" style="grid-column:1/-1">
+            <label for="annAdresse">Adresse / Lieu</label>
+            <input type="text" id="annAdresse" placeholder="Ex: Plage de Yoff, Dakar" maxlength="200">
+          </div>
+
+          <div class="field">
+            <label for="annLat">Latitude</label>
+            <input type="number" id="annLat" placeholder="14.7167" step="0.0001">
+          </div>
+
+          <div class="field">
+            <label for="annLng">Longitude</label>
+            <input type="number" id="annLng" placeholder="-17.4677" step="0.0001">
+          </div>
+
+          <div class="field" style="grid-column:1/-1">
+            <label for="annDesc">Description *</label>
+            <textarea id="annDesc" rows="4" placeholder="Décrivez l'activité en détail…" maxlength="1000" aria-required="true"></textarea>
+            <span class="field-hint">Max 1000 caractères</span>
+          </div>
+
+          <div class="field" style="grid-column:1/-1">
+            <label for="annImage">URL de l'image principale *</label>
+            <input type="url" id="annImage" placeholder="https://…" maxlength="500" aria-required="true">
+            <span class="field-hint">Utilisez une URL d'image valide (JPG, PNG, WebP)</span>
+          </div>
+
+          <!-- Options -->
+          <div style="grid-column:1/-1">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <label style="font-size:.85rem;font-weight:500">Options supplémentaires</label>
+              <button class="btn btn-outline btn-sm" onclick="addOptionRow()" type="button">+ Ajouter</button>
+            </div>
+            <div id="optionRows" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+
+          <!-- Bons plans -->
+          <div style="grid-column:1/-1;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="annBonsPlans">
+              <span style="font-size:.88rem">Mettre en avant (Bons plans)</span>
+            </label>
+            <label class="toggle" aria-label="Publier l'annonce">
+              <input type="checkbox" id="annPubliee" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <span style="font-size:.85rem;font-weight:500">Publier immédiatement</span>
+          </div>
+        </div>
+
+        <div id="annFormError" style="display:none;padding:10px 14px;background:rgba(224,68,68,.08);border-radius:10px;font-size:.82rem;color:var(--error);margin-bottom:16px" role="alert"></div>
+
+        <div style="display:flex;gap:12px">
+          <button class="btn btn-outline" onclick="showSection('annonces',null)" type="button">Annuler</button>
+          <button class="btn btn-primary btn-lg" style="flex:1" onclick="saveAnnonce()" id="btnSaveAnnonce" type="button">
+            Publier l'annonce
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== REVENUS ===== -->
+    <section id="sectionRevenus" class="dash-section" style="display:none">
+      <div class="dash-header">
+        <h1 style="font-family:var(--font-display)">Revenus</h1>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:28px">
+        <div class="stat-card stat-success">
+          <div class="stat-label">Revenus totaux</div>
+          <div class="stat-value" id="revTotal">0 FCFA</div>
+        </div>
+        <div class="stat-card stat-coral">
+          <div class="stat-label">Ce mois</div>
+          <div class="stat-value" id="revMois">0 FCFA</div>
+        </div>
+        <div class="stat-card stat-ocean">
+          <div class="stat-label">Ticket moyen</div>
+          <div class="stat-value" id="revMoyen">0 FCFA</div>
+        </div>
+        <div class="stat-card stat-gold">
+          <div class="stat-label">Taux de confirmation</div>
+          <div class="stat-value" id="revTaux">0%</div>
+        </div>
+      </div>
+
+      <div class="dash-panel">
+        <h2 class="dash-panel-title">Revenus par activité</h2>
+        <div style="overflow-x:auto">
+          <table class="dash-table" aria-label="Revenus par activité">
+            <thead>
+              <tr>
+                <th>Activité</th>
+                <th>Réservations</th>
+                <th>Confirmées</th>
+                <th>Revenus</th>
+                <th>Taux</th>
+              </tr>
+            </thead>
+            <tbody id="tableRevenus"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== UTILISATEURS ===== -->
+    <section id="sectionUtilisateurs" class="dash-section" style="display:none">
+      <div class="dash-header">
+        <h1 style="font-family:var(--font-display)">Utilisateurs</h1>
+      </div>
+      <div class="dash-panel">
+        <div style="overflow-x:auto">
+          <table class="dash-table" aria-label="Liste des utilisateurs">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Inscription</th>
+                <th>Réservations</th>
+                <th>Dépenses</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody id="tableUsers"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- MODAL CONFIRMATION RÉSERVATION -->
+<div class="modal-overlay" id="modalConfirmResa" role="dialog" aria-modal="true" aria-labelledby="confirmResaTitle">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalConfirmResa')" aria-label="Fermer">✕</button>
+    <h2 id="confirmResaTitle" style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:6px">Confirmer la réservation</h2>
+    <div id="modalConfirmContent" style="margin:16px 0;font-size:.9rem;color:var(--night-lt)"></div>
+    <div style="display:flex;gap:12px">
+      <button class="btn btn-outline" onclick="closeModal('modalConfirmResa')" style="flex:1" type="button">Annuler</button>
+      <button class="btn btn-secondary" id="btnConfirmResa" style="flex:1" type="button">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script>
+// ============ DEMO DATA ============
+const DEMO_RESAS = [
+  { id:1, ref:'A1B2C3D4', client:'Aminata Diallo', email:'aminata@email.com', tel:'771234567', activite_nom:'Sortie Kayak en mer', activite_cat:'kayak', date:'2025-06-15', heure:'09:00', nb_personnes:2, montant_total:30000, methode_paiement:'wave', statut:'confirmee', created_at:'2025-05-20T10:00:00Z' },
+  { id:2, ref:'Z9Y8X7W6', client:'Moussa Kouyaté', email:'moussa@email.com', tel:'781234567', activite_nom:'Quad Lac Rose', activite_cat:'quad', date:'2025-06-22', heure:'10:00', nb_personnes:4, montant_total:85000, methode_paiement:'orange', statut:'en_attente', created_at:'2025-05-21T14:30:00Z' },
+  { id:3, ref:'R1E2S3A4', client:'Fatou Sall', email:'fatou@email.com', tel:'701234567', activite_nom:'Restaurant Le Lagon', activite_cat:'restaurant', date:'2025-05-28', heure:'20:00', nb_personnes:2, montant_total:36000, methode_paiement:'wave', statut:'en_attente', created_at:'2025-05-22T09:15:00Z' },
+  { id:4, ref:'P4L5A6G7', client:'Pierre Martin', email:'pierre@email.com', tel:'761234567', activite_nom:'Jet Ski Plage de Ngor', activite_cat:'jetski', date:'2025-06-01', heure:'11:00', nb_personnes:1, montant_total:35000, methode_paiement:'especes', statut:'confirmee', created_at:'2025-05-18T16:20:00Z' },
+  { id:5, ref:'B5O6N7S8', client:'Rokhaya Ndiaye', email:'rokhaya@email.com', tel:'771112233', activite_nom:'Plage Privée Popenguine', activite_cat:'plage', date:'2025-06-08', heure:'09:00', nb_personnes:6, montant_total:48000, methode_paiement:'wave', statut:'annulee', created_at:'2025-05-15T11:00:00Z' },
+];
+
+const DEMO_ANNONCES = [
+  { id:1, nom:'Sortie Kayak en mer', categorie:'kayak', zone:'Dakar', prix:15000, note:4.8, image_principale:'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=100&q=70', publiee:true, nb_resas:12 },
+  { id:2, nom:'Jet Ski Plage de Ngor', categorie:'jetski', zone:'Ngor', prix:35000, note:4.9, image_principale:'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=100&q=70', publiee:true, nb_resas:23 },
+  { id:3, nom:'Quad Lac Rose', categorie:'quad', zone:'Lac Rose', prix:25000, note:4.7, image_principale:'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=100&q=70', publiee:true, nb_resas:18 },
+  { id:4, nom:'Plage Privée Popenguine', categorie:'plage', zone:'Petite Côte', prix:8000, note:4.6, image_principale:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=100&q=70', publiee:false, nb_resas:5 },
+];
+
+// ============ TOAST ============
+function showToast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  t.setAttribute('role', 'alert');
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ============ SECTIONS ============
+function showSection(name, linkEl) {
+  document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
+  document.getElementById(`section${name.split('-').map(w => w.charAt(0).toUpperCase()+w.slice(1)).join('')}`).style.display = '';
+
+  document.querySelectorAll('.dash-link').forEach(l => {
+    l.classList.remove('active');
+    l.style.background = '';
+    l.style.color = 'rgba(255,255,255,.7)';
+  });
+  const active = linkEl || document.querySelector(`[data-section="${name}"]`);
+  if (active) {
+    active.classList.add('active');
+    active.style.background = 'rgba(232,96,76,.15)';
+    active.style.color = 'var(--coral)';
+  }
+
+  // Chargements spécifiques
+  if (name === 'vue-ensemble') renderVueEnsemble();
+  if (name === 'reservations') renderDashResas();
+  if (name === 'annonces') renderAnnonces();
+  if (name === 'revenus') renderRevenus();
+  if (name === 'utilisateurs') renderUtilisateurs();
+  if (name === 'nouvelle-annonce') resetAnnonceForm();
+}
+
+// ============ VUE D'ENSEMBLE ============
+function renderVueEnsemble() {
+  const resas = DEMO_RESAS;
+  const confirmed = resas.filter(r => r.statut === 'confirmee');
+  const pending = resas.filter(r => r.statut === 'en_attente');
+  const totalRev = confirmed.reduce((s,r) => s + r.montant_total, 0);
+  const moisRev = confirmed.filter(r => r.created_at.startsWith('2025-05')).reduce((s,r) => s + r.montant_total, 0);
+
+  document.getElementById('statTotalResa').textContent = resas.length;
+  document.getElementById('statEnAttente').textContent = pending.length;
+  document.getElementById('statConfirmees').textContent = confirmed.length;
+  document.getElementById('statRevenusMois').textContent = moisRev.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('statActives').textContent = DEMO_ANNONCES.filter(a => a.publiee).length;
+  document.getElementById('statTotalAct').textContent = DEMO_ANNONCES.length;
+  document.getElementById('statUsers').textContent = '47';
+  document.getElementById('badgeResas').textContent = pending.length;
+
+  // Dernières réservations
+  const tbody = document.getElementById('tableLastResas');
+  tbody.innerHTML = resas.slice(0,5).map(r => `
+    <tr>
+      <td style="font-weight:500">${r.client}</td>
+      <td>${r.activite_nom}</td>
+      <td>${r.date}</td>
+      <td><strong style="color:var(--coral)">${r.montant_total.toLocaleString('fr-FR')} FCFA</strong></td>
+      <td><span class="resa-status ${r.statut}" style="white-space:nowrap">${statusLabel(r.statut)}</span></td>
+    </tr>
+  `).join('');
+
+  // Activités populaires
+  document.getElementById('popActList').innerHTML = DEMO_ANNONCES.slice(0,4).map(a => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(18,36,43,.06)">
+      <img src="${a.image_principale}" alt="${a.nom}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0">
+      <div style="flex:1">
+        <div style="font-size:.85rem;font-weight:600">${a.nom}</div>
+        <div style="font-size:.76rem;color:var(--muted)">${a.nb_resas} réservations</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:.88rem;font-weight:700;color:var(--coral)">${a.prix.toLocaleString('fr-FR')} FCFA</div>
+        <div style="font-size:.72rem;color:var(--muted)">★ ${a.note}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============ RÉSERVATIONS ============
+function statusLabel(s) {
+  return { confirmee:'Confirmée', en_attente:'En attente', annulee:'Annulée' }[s] || s;
+}
+
+function renderDashResas() {
+  let resas = [...DEMO_RESAS];
+  const filtreStatut = document.getElementById('dashFilterStatut')?.value;
+  const filtreCat = document.getElementById('dashFilterCat')?.value;
+  if (filtreStatut) resas = resas.filter(r => r.statut === filtreStatut);
+  if (filtreCat) resas = resas.filter(r => r.activite_cat === filtreCat);
+
+  const tbody = document.getElementById('tableToutesResas');
+  if (resas.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:32px">Aucune réservation trouvée</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = resas.map(r => `
+    <tr>
+      <td style="font-family:monospace;font-size:.8rem;color:var(--muted)">${r.ref}</td>
+      <td>
+        <div style="font-weight:500;font-size:.85rem">${r.client}</div>
+        <div style="font-size:.75rem;color:var(--muted)">${r.tel}</div>
+      </td>
+      <td style="font-size:.85rem">${r.activite_nom}</td>
+      <td style="font-size:.85rem">${r.date} ${r.heure}</td>
+      <td style="text-align:center">${r.nb_personnes}</td>
+      <td><strong style="color:var(--coral);font-size:.88rem">${r.montant_total.toLocaleString('fr-FR')} FCFA</strong></td>
+      <td style="font-size:.8rem;text-transform:capitalize">${r.methode_paiement}</td>
+      <td><span class="resa-status ${r.statut}">${statusLabel(r.statut)}</span></td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          ${r.statut === 'en_attente' ? `
+            <button class="btn btn-sm" style="background:var(--success);color:#fff;padding:5px 10px"
+                    onclick="confirmResa(${r.id},'${r.client}','${r.activite_nom}')"
+                    aria-label="Confirmer la réservation de ${r.client}">
+              ✓
+            </button>
+          ` : ''}
+          <button class="btn btn-outline btn-sm" onclick="redirectResaWhatsApp('${r.client}','${r.activite_nom}','${r.date}','${r.heure}','${r.tel}')"
+                  style="padding:5px 10px"
+                  aria-label="Contacter ${r.client} sur WhatsApp">
+            WA
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+let resaToConfirm = null;
+
+function confirmResa(id, client, activite) {
+  resaToConfirm = id;
+  document.getElementById('modalConfirmContent').innerHTML = `
+    <p>Confirmer la réservation de <strong>${client}</strong> pour <strong>${activite}</strong> ?</p>
+    <p style="margin-top:8px;font-size:.82rem;color:var(--muted)">Le client sera notifié et la réservation sera marquée comme confirmée.</p>
+  `;
+  document.getElementById('modalConfirmResa').classList.add('open');
+}
+
+document.getElementById('btnConfirmResa').onclick = function() {
+  if (!resaToConfirm) return;
+  const resa = DEMO_RESAS.find(r => r.id === resaToConfirm);
+  if (resa) {
+    resa.statut = 'confirmee';
+    closeModal('modalConfirmResa');
+    renderDashResas();
+    renderVueEnsemble();
+    showToast(`Réservation confirmée !`, 'success');
+  }
+};
+
+function redirectResaWhatsApp(client, activite, date, heure, tel) {
+  const msg = encodeURIComponent(
+    `Bonjour ${client},\n` +
+    `Votre réservation "${activite}" du ${date} à ${heure} est confirmée.\n` +
+    `Merci de votre confiance — Dakar Activités 🌊`
+  );
+  window.open(`https://wa.me/221${tel.replace(/\D/g,'')}?text=${msg}`, '_blank', 'noopener,noreferrer');
+}
+
+// ============ ANNONCES ============
+function renderAnnonces() {
+  const container = document.getElementById('annoncesListAdmin');
+  container.innerHTML = DEMO_ANNONCES.map(a => `
+    <div class="annonce-item">
+      <img src="${a.image_principale}" alt="${a.nom}" class="annonce-img" loading="lazy">
+      <div class="annonce-info">
+        <div class="annonce-name">${a.nom}</div>
+        <div class="annonce-meta">${a.zone} · ${a.prix.toLocaleString('fr-FR')} FCFA · ${a.nb_resas} réservations</div>
+        <span class="resa-status ${a.publiee ? 'confirmee' : 'annulee'}" style="display:inline-block;margin-top:4px">
+          ${a.publiee ? 'En ligne' : 'Hors ligne'}
+        </span>
+      </div>
+      <div class="annonce-actions">
+        <button class="btn btn-outline btn-sm" onclick="editAnnonce(${a.id})" aria-label="Modifier ${a.nom}">Modifier</button>
+        <label class="toggle" aria-label="Publier/dépublier ${a.nom}">
+          <input type="checkbox" ${a.publiee ? 'checked' : ''} onchange="togglePublication(${a.id},this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+        <button class="btn btn-sm" style="background:rgba(224,68,68,.1);color:var(--error);padding:6px 10px"
+                onclick="supprimerAnnonce(${a.id})"
+                aria-label="Supprimer ${a.nom}">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function togglePublication(id, val) {
+  const a = DEMO_ANNONCES.find(x => x.id === id);
+  if (a) {
+    a.publiee = val;
+    showToast(`Annonce ${val ? 'publiée' : 'dépubliée'}`, 'success');
+  }
+}
+
+function supprimerAnnonce(id) {
+  if (!confirm('Supprimer définitivement cette annonce ?')) return;
+  const i = DEMO_ANNONCES.findIndex(a => a.id === id);
+  if (i !== -1) { DEMO_ANNONCES.splice(i, 1); renderAnnonces(); showToast('Annonce supprimée', 'success'); }
+}
+
+function editAnnonce(id) {
+  const a = DEMO_ANNONCES.find(x => x.id === id);
+  if (!a) return;
+  showSection('nouvelle-annonce', null);
+  document.getElementById('formAnnonceTitle').textContent = 'Modifier l\'annonce';
+  document.getElementById('annNom').value = a.nom;
+  document.getElementById('annCategorie').value = a.categorie;
+  document.getElementById('annZone').value = a.zone;
+  document.getElementById('annPrix').value = a.prix;
+  document.getElementById('annImage').value = a.image_principale;
+  document.getElementById('annPubliee').checked = a.publiee;
+}
+
+// ============ NOUVELLE ANNONCE ============
+function addOptionRow() {
+  const container = document.getElementById('optionRows');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;align-items:center';
+  row.innerHTML = `
+    <input type="text" placeholder="Label option" maxlength="60" style="flex:1" aria-label="Nom de l'option">
+    <input type="number" placeholder="Prix FCFA" min="0" max="9999999" style="width:130px" aria-label="Prix de l'option">
+    <button type="button" onclick="this.closest('div').remove()" style="background:none;border:none;color:var(--error);cursor:pointer;font-size:1rem;padding:4px" aria-label="Supprimer l'option">✕</button>
+  `;
+  container.appendChild(row);
+}
+
+function resetAnnonceForm() {
+  document.getElementById('formAnnonceTitle').textContent = 'Nouvelle annonce';
+  ['annNom','annPrix','annPromo','annDuree','annCapacite','annAdresse','annLat','annLng','annDesc','annImage'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('annCategorie').value = '';
+  document.getElementById('annZone').value = '';
+  document.getElementById('annNiveau').value = 'Tout public';
+  document.getElementById('annBonsPlans').checked = false;
+  document.getElementById('annPubliee').checked = true;
+  document.getElementById('optionRows').innerHTML = '';
+  document.getElementById('annFormError').style.display = 'none';
+}
+
+function saveAnnonce() {
+  const err = document.getElementById('annFormError');
+  err.style.display = 'none';
+
+  const nom = document.getElementById('annNom').value.trim().replace(/[<>"']/g,'').slice(0,100);
+  const cat = document.getElementById('annCategorie').value;
+  const zone = document.getElementById('annZone').value;
+  const prix = parseInt(document.getElementById('annPrix').value);
+  const promo = parseInt(document.getElementById('annPromo').value) || 0;
+  const desc = document.getElementById('annDesc').value.trim().replace(/[<>"']/g,'').slice(0,1000);
+  const image = document.getElementById('annImage').value.trim();
+  const publiee = document.getElementById('annPubliee').checked;
+
+  if (!nom) { err.textContent = 'Nom requis'; err.style.display = ''; return; }
+  if (!cat) { err.textContent = 'Catégorie requise'; err.style.display = ''; return; }
+  if (!zone) { err.textContent = 'Zone requise'; err.style.display = ''; return; }
+  if (!prix || isNaN(prix) || prix < 0) { err.textContent = 'Prix invalide'; err.style.display = ''; return; }
+  if (!desc || desc.length < 20) { err.textContent = 'Description trop courte (min. 20 caractères)'; err.style.display = ''; return; }
+  if (!image || !image.startsWith('http')) { err.textContent = 'URL image invalide'; err.style.display = ''; return; }
+  if (promo < 0 || promo > 90) { err.textContent = 'Promotion entre 0 et 90%'; err.style.display = ''; return; }
+
+  const btn = document.getElementById('btnSaveAnnonce');
+  btn.disabled = true; btn.textContent = 'Publication…';
+
+  setTimeout(() => {
+    DEMO_ANNONCES.push({
+      id: Date.now(), nom, categorie: cat, zone, prix, promo: promo || undefined,
+      desc, image_principale: image, publiee, note: 5.0, nb_resas: 0,
+      bons_plans: document.getElementById('annBonsPlans').checked,
+    });
+    showToast('Annonce publiée !', 'success');
+    btn.disabled = false; btn.textContent = 'Publier l\'annonce';
+    showSection('annonces', null);
+  }, 800);
+}
+
+// ============ REVENUS ============
+function renderRevenus() {
+  const confirmed = DEMO_RESAS.filter(r => r.statut === 'confirmee');
+  const total = DEMO_RESAS.reduce((s,r) => s + r.montant_total, 0);
+  const totalConf = confirmed.reduce((s,r) => s + r.montant_total, 0);
+  const mois = confirmed.filter(r => r.created_at.startsWith('2025-05')).reduce((s,r) => s + r.montant_total, 0);
+  const moyen = confirmed.length ? Math.round(totalConf / confirmed.length) : 0;
+  const taux = DEMO_RESAS.length ? Math.round(confirmed.length / DEMO_RESAS.length * 100) : 0;
+
+  document.getElementById('revTotal').textContent = total.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('revMois').textContent = mois.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('revMoyen').textContent = moyen.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('revTaux').textContent = taux + '%';
+
+  // Par activité
+  const byAct = {};
+  DEMO_RESAS.forEach(r => {
+    if (!byAct[r.activite_nom]) byAct[r.activite_nom] = { total: 0, count: 0, confirmed: 0 };
+    byAct[r.activite_nom].total += r.montant_total;
+    byAct[r.activite_nom].count++;
+    if (r.statut === 'confirmee') byAct[r.activite_nom].confirmed++;
+  });
+
+  document.getElementById('tableRevenus').innerHTML = Object.entries(byAct).map(([nom, d]) => `
+    <tr>
+      <td style="font-weight:500">${nom}</td>
+      <td>${d.count}</td>
+      <td>${d.confirmed}</td>
+      <td><strong style="color:var(--success)">${d.total.toLocaleString('fr-FR')} FCFA</strong></td>
+      <td>${Math.round(d.confirmed/d.count*100)}%</td>
+    </tr>
+  `).join('');
+}
+
+// ============ UTILISATEURS ============
+function renderUtilisateurs() {
+  const users = [
+    { nom:'Aminata Diallo', email:'aminata@email.com', inscription:'2025-04-10', resas:3, depenses:115000, actif:true },
+    { nom:'Moussa Kouyaté', email:'moussa@email.com', inscription:'2025-03-22', resas:5, depenses:210000, actif:true },
+    { nom:'Fatou Sall', email:'fatou@email.com', inscription:'2025-05-01', resas:2, depenses:72000, actif:true },
+    { nom:'Pierre Martin', email:'pierre@email.com', inscription:'2025-02-14', resas:8, depenses:320000, actif:false },
+  ];
+  document.getElementById('tableUsers').innerHTML = users.map(u => `
+    <tr>
+      <td style="font-weight:500">${u.nom}</td>
+      <td style="font-size:.83rem;color:var(--muted)">${u.email}</td>
+      <td style="font-size:.83rem">${new Date(u.inscription).toLocaleDateString('fr-FR')}</td>
+      <td style="text-align:center">${u.resas}</td>
+      <td><strong style="color:var(--ocean)">${u.depenses.toLocaleString('fr-FR')} FCFA</strong></td>
+      <td><span class="resa-status ${u.actif ? 'confirmee' : 'annulee'}">${u.actif ? 'Actif' : 'Inactif'}</span></td>
+    </tr>
+  `).join('');
+}
+
+// ============ MODAL ============
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.getElementById('modalConfirmResa').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('modalConfirmResa');
+});
+
+// ============ STYLES SIDEBAR ACTIF ============
+const style = document.createElement('style');
+style.textContent = `
+  .dash-link:hover { background: rgba(255,255,255,.06) !important; color: rgba(255,255,255,.9) !important; }
+  .dash-link.active { background: rgba(232,96,76,.15) !important; color: var(--coral) !important; }
+`;
+document.head.appendChild(style);
+
+// ============ INIT ============
+async function initDashboard() {
+  // Vérification admin
+  document.getElementById('adminGuard').style.display = '';
+
+  let isAdmin = false;
+  try {
+    const { Admin } = window.DakarApp || {};
+    if (Admin) isAdmin = await Admin.isAdmin();
+    else isAdmin = true; // mode démo
+  } catch (e) {
+    isAdmin = true; // mode démo sans Supabase
+  }
+
+  document.getElementById('adminGuard').style.display = 'none';
+
+  if (!isAdmin) {
+    document.getElementById('accessDenied').style.display = 'flex';
+    return;
+  }
+
+  document.getElementById('dashboardMain').style.display = '';
+  document.getElementById('dateToday').textContent = new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  // Activer le premier lien
+  const firstLink = document.querySelector('.dash-link');
+  if (firstLink) {
+    firstLink.style.background = 'rgba(232,96,76,.15)';
+    firstLink.style.color = 'var(--coral)';
+  }
+
+  renderVueEnsemble();
+}
+
+document.addEventListener('DOMContentLoaded', initDashboard);
+</script>
+</body>
+</html>
